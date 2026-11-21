@@ -1,0 +1,7 @@
+# Revelate agent - no third-party packages are required.
+# The whole agent, tests and offline simulator run on the Python 3.10+ standard
+# library alone. A live run only needs:
+#   * Python 3.10 or newer (tested on 3.13)
+#   * a revel8 TEAM KEY (from the organizers)
+#   * an OpenAI API key with Responses API access and credits
+# There is nothing to `pip install`. `py verify.py` needs none of the above.
