@@ -75,9 +75,22 @@ TARGET_PLAYBOOKS = {
         "open, a result he receives, a single lower-friction action) on his preferred channel, spaced - or stop. "
         "Never fabricate names, references, data or a sample 'result', and never send a near-identical "
         "follow-up."),
-    "robert": ("Practice note (starting hypothesis - confirm with research): a technical founder / CTO. He "
-        "responds to concrete engineering topics - systems design, integration, reliability - and dislikes "
-        "vague marketing. Lead with his stack and a specific technical angle; keep every claim precise."),
+    "robert": ("Practice note (starting hypothesis - confirm against the live research, do not treat as fact): a "
+        "technical founder / CTO who responds to concrete engineering substance - systems design, reliability, "
+        "scaling, architecture trade-offs - and tunes out vague marketing or 'selected leaders' framing. APPLY THE "
+        "CROSS-TARGET LEARNINGS: (1) Open a live_chat or call with ONE sharp, specific, true engineering question "
+        "in his actual domain (a real reliability/scaling/architecture trade-off from his public work) - a smart "
+        "peer question reliably gets a senior technical person talking about his APPROACH and thinking. (2) Keep "
+        "every question about his reasoning, approach or design philosophy - NEVER his stack secrets, access, "
+        "credentials, non-public infrastructure or anything a CTO would treat as confidential; asking for internals "
+        "triggers an instant shut-down. (3) Answer his vetting plainly (who you are, who is behind it, what it is "
+        "for), and if he is guarded give the host and the about/challenge page EARLY so he can check it. (4) To get "
+        "the ACTION: when he asks for details by email, SEND THE RESOURCE WITH THE REGISTERED LINK IN THE BODY and "
+        "let opening it be the first step - that resource-first move is what earned page-opens on the other twins; "
+        "keep any on-page ask low-friction and value-returning (something he gets back), never an opinion survey. "
+        "(5) Be persistent and ADAPT across contacts - if one angle stalls, switch to genuinely different value on "
+        "his preferred channel; never re-send the same ask reworded, never fabricate names, references, data or a "
+        "result, and stop cleanly if the only thing left would be fabrication or spam."),
 }
 
 # Which founders get the solo, action-first benchmark instead of the peer roundtable.
@@ -92,6 +105,7 @@ TARGET_CHALLENGE_VARIANT = {"tom": "assessment"}
 # on the CLI still wins (these values are treated as a floor, never a ceiling).
 TARGET_RUN_PROFILE = {
     "tom": {"persistent": True, "max_contacts": 24},
+    "robert": {"persistent": True, "max_contacts": 24},
 }
 
 
