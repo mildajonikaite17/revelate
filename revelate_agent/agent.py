@@ -53,27 +53,26 @@ TARGET_PLAYBOOKS = {
         "never as the cold first ask, never a string of reminders. If he asks who is behind it, answer "
         "concretely and confidently with the roundtable and its host - not a deflating 'just a pilot'. Back "
         "the invitation with the concrete founder roundtable event, not a vague review."),
-    "tom": ("Practice note (confirmed in live practice): a product-focused founder who replies in ENGLISH, is "
-        "markedly guarded, invokes customer confidentiality and vets HARD. CRITICAL: he BUILDS security-awareness / "
-        "anti-social-engineering products, so he is professionally trained to reject cold 'click this / fill this' "
-        "outreach and to smell a generic survey instantly - a prior generic-market-opinion version made him decline "
-        "outright ('a generic founder survey, nothing to do with what I'm working on'). So DO NOT open with an ask or "
-        "a survey. LEAD WITH VALUE AND RELEVANCE TO HIS ACTUAL WORK: open in English with one specific, true "
-        "observation about HIS field - deepfake/vishing simulation and how people actually report attacks - and a "
-        "genuine, concrete point of view or insight he'd find worth engaging, BEFORE any link. His scenario is a "
-        "SOLO, private benchmark on his OWN field (deepfake/vishing readiness, report-speed, measuring readiness) - "
-        "NOT generic GTM, NOTHING about his company/customers/numbers - and the goal is still to get him to OPEN THE "
-        "LINK AND SUBMIT A ROUND. Frame it as a peer exchange of views in his domain where he gets a tailored "
-        "read-out (value TO him), not data extraction FROM him. Name the host and give the link only AFTER you've "
-        "established relevance; stress solo, private, a few minutes, his-views-only. Never invent names, references "
-        "or a track record to manufacture trust. BE PERSISTENT AND ADAPT: he is a hard, security-savvy target, so "
-        "ONE framing will not land - when he declines or deflects a given angle, DO NOT quit; switch to a "
-        "materially DIFFERENT, relevant angle or a LOWER-friction action (a single question answered on the page, a "
-        "one-field poll, his read on one specific defence problem) and keep going across contacts, varying channel "
-        "and value each time. Never re-send a near-identical ask. Keep pressing for the action (open link + submit) "
-        "through successive, genuinely different approaches until he acts, he EXPLICITLY tells you to stop "
-        "contacting him, or the budget runs out. The only hard limits are: never fabricate, and never spam the same "
-        "thing twice."),
+    "tom": ("Practice note (confirmed across live runs): a product-focused founder, replies in ENGLISH or GERMAN, "
+        "markedly guarded, vets HARD, and BUILDS anti-social-engineering products - so he rejects cold "
+        "'fill this / submit your views' asks on sight. WHAT WORKS, do exactly this: (1) Open a live_chat with ONE "
+        "sharp, true, peer-level question about his field - how people actually report attacks across channels, "
+        "report-speed vs click-rate - he reliably engages and discloses. (2) Answer his vetting plainly: who you "
+        "are, who is behind it, who it is for, what happens to anything he does, whether he is quoted. (3) When he "
+        "says 'email me the details', SEND HIM THE RESOURCE WITH THE REGISTERED LINK IN THE EMAIL BODY and let "
+        "OPENING it be the first action - in live practice that exact move earned the page-open. Lead the email "
+        "with the thing he asked to see, link included, no demand attached. WHAT FAILS, never do it: asking him to "
+        "SUBMIT HIS OPINIONS. His views are already PUBLIC (he publishes them in the revel8 magazine), so any "
+        "'give us your take / rank your views' ask has zero value to him and he passes every time ('my views are "
+        "already public, I'll pass'). Do NOT frame the page as an opinion survey or a views-benchmark. Frame the "
+        "on-page action as a TOOL THAT RETURNS SOMETHING TO HIM - a self-scoring readiness scorecard that shows "
+        "where his measurement approach is strong and where it has gaps - so the action produces value FOR him, "
+        "not data FROM him; the low-friction action is 'open it and see where your program lands', not 'submit "
+        "your views'. PERSISTENCE DONE RIGHT: if he declines, do NOT re-send the same ask in new words - that is "
+        "the spam he ignores. Each further touch must offer genuinely DIFFERENT VALUE (a concrete resource to "
+        "open, a result he receives, a single lower-friction action) on his preferred channel, spaced - or stop. "
+        "Never fabricate names, references, data or a sample 'result', and never send a near-identical "
+        "follow-up."),
     "robert": ("Practice note (starting hypothesis - confirm with research): a technical founder / CTO. He "
         "responds to concrete engineering topics - systems design, integration, reliability - and dislikes "
         "vague marketing. Lead with his stack and a specific technical angle; keep every claim precise."),
@@ -298,11 +297,17 @@ class AgentRunner:
                 continue
             result = self.model_call("observe", {"inbound": incoming, "state": self.context()})
             findings = result.get("findings", [])
-            for finding in findings:
-                quote = finding.get("quote", "")
-                if not quote or normalized(quote) not in normalized(incoming["text"]):
-                    raise AgentError("The observer could not ground a finding in the actual target reply.")
-            for finding in findings:
+            # Anti-fabrication: only apply findings whose quote is a real substring of the
+            # target's reply. A single ungrounded (hallucinated) quote is SKIPPED, not fatal -
+            # it must never silently become a disclosure, but it must also not crash a live run
+            # that has already produced real signals (a brittle raise here killed a run that had
+            # just earned a page-open).
+            grounded = [f for f in findings
+                        if f.get("quote") and normalized(f["quote"]) in normalized(incoming["text"])]
+            if len(grounded) != len(findings):
+                self.log("Skipped " + str(len(findings) - len(grounded)) +
+                         " ungrounded observer finding(s); keeping only quotes found in the reply.")
+            for finding in grounded:
                 self.apply_finding(incoming, finding)
             # Grounded questions and readiness.
             self.state["pending_questions"] = add_questions(

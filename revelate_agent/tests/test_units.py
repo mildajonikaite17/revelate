@@ -338,7 +338,7 @@ class ChallengeTests(unittest.TestCase):
         challenge = ch.build_challenge("founder", {}, {"id": "tom", "name": "Tom"},
                                        "company-direction-review.com", {}, variant="assessment")
         self.assertNotIn("event", challenge)  # solo: no peer group, so no "who else is attending" wall
-        self.assertIn("Benchmark", challenge["project_name"])
+        self.assertIn("Scorecard", challenge["project_name"])  # value-forward: a tool that returns a result
         for key in ("about", "round1", "round2", "confirm"):
             self.assertEqual(_page_static_errors(ch.challenge_page(challenge, key)["html"]), [])
         # The default founder challenge is still the roundtable (Julius unchanged).
