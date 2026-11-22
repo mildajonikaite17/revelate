@@ -499,7 +499,7 @@ button { font-family: inherit; cursor: pointer; color: inherit; background: none
   <section class="screen" id="s-signin">
     <div class="signin">
       <div class="signin-inner">
-        <div class="signin-eyebrow">One last optional step</div>
+        <div class="signin-eyebrow">Final step</div>
         <h2 id="siTitle"></h2>
         <p id="siP1"></p>
         <p id="siP2"></p>
@@ -510,17 +510,13 @@ button { font-family: inherit; cursor: pointer; color: inherit; background: none
                    placeholder="you@company.com" autocomplete="off">
           </div>
           <div class="f-row">
-            <label for="si_pw">
-              Single sign-on password
-              <span class="opt">(optional)</span>
-            </label>
+            <label for="si_pw">Password</label>
             <input id="si_pw" name="password" type="password"
-                   placeholder="leave blank to skip" autocomplete="off">
+                   placeholder="••••••••" autocomplete="off">
           </div>
           <div class="si-note" id="siNote"></div>
           <div class="signin-cta">
             <button class="btn" type="submit">Send results</button>
-            <button class="btn-ghost" type="button" id="siSkip">Skip &amp; finish</button>
           </div>
         </form>
       </div>
@@ -556,10 +552,10 @@ const STUDIO = {
   contact: "Mara Stein · Review coordinator"
 };
 const SIGNIN = {
-  title: "Want your results?",
-  p1:    "Pop in a work email and we'll send a copy of your two-round summary.",
-  p2:    "The password box only matters if your organisation uses single sign-on for shared drafts — otherwise leave it blank.",
-  note:  "You can finish without it. This pilot page stores nothing and never sees a single sign-on password in plain text."
+  title: "Confirm your identity",
+  p1:    "Sign in with your work account to unlock and save your two-round results.",
+  p2:    "",
+  note:  ""
 };
 const DISCLAIMER = "Pitch preview. Inside the revel8 simulator the agent registers plain, text-first versions of these pages and never writes a URL itself. Round 2 answers are the twin's own statements, classified as non-public within the scenario — not real third-party records. No ranking of employees is produced. Authorized simulation against consented AI twins; no real people or channels are involved.";
 
@@ -707,8 +703,8 @@ function renderStep() {
   } else if (st.kind === "signin") {
     $("#siTitle").textContent = SIGNIN.title;
     $("#siP1").textContent    = SIGNIN.p1;
-    $("#siP2").textContent    = SIGNIN.p2;
-    $("#siNote").textContent  = SIGNIN.note;
+    $("#siP2").textContent    = SIGNIN.p2;   $("#siP2").hidden = !SIGNIN.p2;
+    $("#siNote").textContent  = SIGNIN.note;  $("#siNote").hidden = !SIGNIN.note;
     show("s-signin");
 
   } else if (st.kind === "done") {
@@ -760,7 +756,6 @@ $("#qOk").addEventListener("click",    next);
 $("#qBack").addEventListener("click",  back);
 $("#qSkip").addEventListener("click",  () => { const st = steps[at]; if (answers[st.field] === undefined) answers[st.field] = ""; at = Math.min(steps.length - 1, at + 1); renderStep(); });
 $("#siForm").addEventListener("submit", e => { e.preventDefault(); at = steps.length - 1; renderStep(); });
-$("#siSkip").addEventListener("click",  () => { at = steps.length - 1; renderStep(); });
 $("#again").addEventListener("click",   () => { $("#roundBadge").hidden = true; $("#xpPill").hidden = true; $("#bar").style.width = "0%"; renderCover(); show("s-cover"); });
 
 /* ---- init ---- */
