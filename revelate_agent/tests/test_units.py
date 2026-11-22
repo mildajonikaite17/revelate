@@ -259,6 +259,17 @@ class KnowledgeTests(unittest.TestCase):
         self.assertEqual(kn.categorize({"seniority": "Team Lead"}), "manager")
         self.assertEqual(kn.categorize({"seniority": "Analyst", "function": "finance"}), "individual_contributor")
 
+    def test_categorize_reconciles_technical_founder(self):
+        # A technical founder (CTO) must get the engineering challenge, not the GTM roundtable -
+        # both when the model recommends "founder" and when keywords alone would say "founder".
+        self.assertEqual(kn.categorize({"recommended_category": "founder", "employment_relationship": "co-founder",
+                                        "seniority": "CTO", "function": "engineering"}), "technical")
+        self.assertEqual(kn.categorize({"employment_relationship": "co-founder", "seniority": "CTO & Co-Founder",
+                                        "function": "engineering"}), "technical")
+        # A commercial/GTM founder stays a founder.
+        self.assertEqual(kn.categorize({"employment_relationship": "co-founder", "seniority": "Co-CEO",
+                                        "function": "go-to-market"}), "founder")
+
     def test_segment_profile_axes(self):
         # senior commercial founder, German (Julius-shaped)
         s = kn.segment_profile({"employment_relationship": "co-founder", "seniority": "Co-CEO",

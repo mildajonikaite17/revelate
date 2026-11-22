@@ -29,11 +29,8 @@ def _has(haystack: str, *words: str) -> bool:
     return any(word in haystack for word in words)
 
 
-def categorize(work_profile: "dict[str, Any]") -> str:
-    """Pick one tailored niche. Trust the model's recommendation when valid, else derive it."""
-    recommended = (work_profile or {}).get("recommended_category")
-    if recommended in CATEGORIES:
-        return recommended
+def _base_category(work_profile: "dict[str, Any]") -> str:
+    """Keyword routing used when the model gives no valid recommended_category."""
     employment = normalized(work_profile.get("employment_relationship", ""))
     seniority = normalized(work_profile.get("seniority", ""))
     function = normalized(work_profile.get("function", ""))
@@ -56,6 +53,22 @@ def categorize(work_profile: "dict[str, Any]") -> str:
     if _has(seniority, "manager", "lead", "supervisor", "team lead", "principal"):
         return "manager"
     return "individual_contributor"
+
+
+def categorize(work_profile: "dict[str, Any]") -> str:
+    """Pick one tailored niche, then reconcile domain.
+
+    Trust the model's recommended_category when valid, else derive it from keywords -
+    THEN apply one universal correction: a founder whose actual function is technical is a
+    CTO-type, not a go-to-market lead, so route them to the engineering challenge instead of
+    the founder's go-to-market roundtable. This is what Robert's run needed, done for every
+    technical founder rather than as a per-target override."""
+    wp = work_profile or {}
+    recommended = wp.get("recommended_category")
+    base = recommended if recommended in CATEGORIES else _base_category(wp)
+    if base == "founder" and segment_profile(wp).get("domain") == "technical":
+        return "technical"
+    return base
 
 
 # ---- segmentation: HOW to approach a profile ---------------------------------

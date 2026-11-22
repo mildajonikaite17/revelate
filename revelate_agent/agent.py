@@ -111,11 +111,11 @@ TARGET_RUN_PROFILE = {
     "robert": {"persistent": True, "max_contacts": 24},
 }
 
-# Per-target niche override: the auto-categoriser read Robert as a GTM "founder" and
-# handed him the go-to-market roundtable, but he is a technical CTO who said outright
-# "GTM ist nicht mein Thema". Pin him to the engineering niche so the whole challenge
-# is systems/reliability, not go-to-market. An explicit --category still wins.
-TARGET_CATEGORY = {"robert": "technical"}
+# Per-target niche override. Normally empty: categorize() is now domain-aware, so a
+# technical founder (Robert) routes to the engineering niche universally - no per-target
+# pin needed. Kept as a general escape hatch for a genuine edge case; an explicit
+# --category still wins over both.
+TARGET_CATEGORY: "dict[str, str]" = {}
 
 
 def merge_events(existing, incoming):

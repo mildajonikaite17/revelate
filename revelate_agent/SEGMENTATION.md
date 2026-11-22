@@ -7,7 +7,9 @@ is handled on the same principles.
 
 Two functions in `knowledge.py` do it, from the same research the agent already gathers:
 
-- `categorize(profile)` → **what** challenge niche fits (founder, technical, HR, …).
+- `categorize(profile)` → **what** challenge niche fits (founder, technical, HR, …). It is
+  **domain-reconciled**: a founder whose actual function is technical (a CTO-type) routes to the
+  engineering challenge, not the go-to-market one — so the *what* respects domain just like the *how*.
 - `segment_profile(profile)` + `derive_approach(profile)` → **how** to approach the person.
 
 The derived approach becomes the agent's `practice_playbook` for every run. A per-target
@@ -46,7 +48,7 @@ universal approach, it never replaces it.
 |---|---|---|---|
 | **Julius** — GTM co-CEO, German | senior / commercial · guarded | German live chat, sharp GTM founder question, give the roundtable host/page early, never invent attendees | Interested + page opened + real disclosures |
 | **Tom** — product founder, security, publishes | senior / commercial · guarded · **publishes-views** | Don't ask for his opinions (public); give a value-returning tool he opens; honest on provenance | Reliable disclosures + page-open; submit blocked only by provenance we won't fake |
-| **Robert** — CTO, German | senior / technical · guarded · **guards-internals** | German opener on a systems/reliability puzzle; **never** GTM; never his stack/internals; puzzles as the low-threat action | Fixed the GTM mismatch that lost the baseline run |
+| **Robert** — CTO, German | senior / technical · guarded · **guards-internals** | German opener on a systems/reliability puzzle; **never** GTM; never his stack/internals; puzzles as the low-threat action | GTM mismatch now fixed universally — a technical founder routes to engineering, no per-target pin |
 | **A summer intern, marketing** | junior / commercial | a task/challenge can lead; no need for a live peer call | (new profile — handled with no hand-tuning) |
 | **A finance analyst** | IC / finance · guards-internals | respectful message; keep to reasoning, never their numbers/internals | (new profile — handled with no hand-tuning) |
 
