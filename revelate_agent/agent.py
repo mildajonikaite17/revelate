@@ -793,8 +793,13 @@ def main(argv=None):
         store = RunStore(path, secrets=(team_key, openai_key))
         effective = store.load()["campaign"] if args.resume else campaign
         _, model, model_name = _make_clients(args, effective, team_key, openai_key)
+        prof = TARGET_RUN_PROFILE.get((selected[index] if not args.resume else ""), {})
+        eff_persistent = bool(effective.get("persistent")) or bool(prof.get("persistent"))
+        eff_cap = effective.get("max_contacts")
+        if prof.get("max_contacts"):
+            eff_cap = max(int(eff_cap or 0), int(prof["max_contacts"]))
         print("Target:", (selected[index] if not args.resume else "resumed"), "| model:", model_name,
-              "| persistent:", bool(effective.get("persistent")), "| contact cap:", effective.get("max_contacts"))
+              "| persistent:", eff_persistent, "| contact cap:", eff_cap)
         runner = AgentRunner(api, model, effective, store)
         result = runner.run(target=None if args.resume else targets[selected[index]],
                             resume=bool(args.resume), recovered_session_id=args.session_id,
