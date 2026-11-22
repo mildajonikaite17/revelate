@@ -20,9 +20,31 @@ participants, no ranking of employees and no claimed endorsements.
 
 from __future__ import annotations
 
+import datetime
 from html import escape
 import re
 from typing import Any
+
+_WEEKDAY_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+_WEEKDAY_DE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
+_MONTH_EN = ["January", "February", "March", "April", "May", "June", "July", "August",
+             "September", "October", "November", "December"]
+_MONTH_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
+             "September", "Oktober", "November", "Dezember"]
+
+
+def proposed_slot(today: "datetime.date | None" = None) -> "dict[str, str]":
+    """A concrete next-Wednesday slot at least twelve days out, with the correct weekday
+    in both languages - so the agent never gives a date on the wrong day."""
+    day = (today or datetime.date.today()) + datetime.timedelta(days=12)
+    while day.weekday() != 2:  # Wednesday
+        day += datetime.timedelta(days=1)
+    wd, mo = day.weekday(), day.month - 1
+    return {
+        "date": day.isoformat(),
+        "text_en": f"{_WEEKDAY_EN[wd]}, {day.day} {_MONTH_EN[mo]} {day.year}, 16:00-17:00 CET",
+        "text_de": f"{_WEEKDAY_DE[wd]}, {day.day}. {_MONTH_DE[mo]} {day.year}, 16:00-17:00 Uhr MEZ",
+    }
 
 
 # Per-niche challenge content. Each item is (field_name, visible_prompt).
@@ -40,6 +62,9 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
             "format": "A 60-minute online roundtable with six to eight founders, held under the Chatham House Rule.",
             "cadence": "It runs roughly monthly as a facilitated peer discussion - no slides, no pitch, no recording.",
             "audience": "Founders and co-CEOs scaling go-to-market for a technical product.",
+            "topics": ["founder-led versus rep-led go-to-market and when to switch",
+                       "pricing and packaging that survives enterprise procurement",
+                       "what actually moves a pilot to paid"],
             "agenda": ["What is genuinely working in your go-to-market right now, and what stalled",
                        "The one bottleneck slowing repeatable growth this quarter",
                        "How peers are solving it - a candid round the table",
@@ -369,20 +394,33 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     confirm_url = base + "/" + person + "/save"
 
     event = spec.get("event")
+    slot = proposed_slot()
+    host_first = contact_name.split(" ")[0]
+    host_bio = (contact_name + " facilitates the " + (event["name"] if event else spec["title"]) + "; " + host_first
+                + " has convened invite-only founder peer groups across the DACH region and runs each session as a "
+                "neutral moderator, not a vendor.")
+    northbridge_about = (organizer + " is a small independent studio that convenes invite-only founder peer "
+                         "roundtables. It does not publish, record, sell or recruit; its only output is the private "
+                         "discussion itself.")
     if event:
         agenda = "<ul>" + "".join("<li>" + escape(line) + "</li>" for line in event["agenda"]) + "</ul>"
+        topics = "<ul>" + "".join("<li>" + escape(t) + "</li>" for t in event["topics"]) + "</ul>"
         about_html = ('<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;'
             'color:#1b2538;max-width:720px;margin:auto;padding:36px;line-height:1.5">'
             + "<h1>" + escape(event["name"]) + "</h1>"
             + "<p>" + escape(event["name"] + " is " + spec["framing"]) + "</p>"
+            + "<h2>Who runs it</h2>"
+            + "<p>" + escape(northbridge_about) + "</p>"
+            + "<p>" + escape(host_bio) + "</p>"
+            + "<h2>Format</h2>"
             + "<p>" + escape(event["format"]) + "</p>"
             + "<p>" + escape(event["cadence"]) + "</p>"
             + "<p>" + escape("Who comes: " + event["audience"]) + "</p>"
+            + "<p>" + escape("Proposed next session: " + slot["text_en"] + ".") + "</p>"
             + "<h2>A typical session</h2>" + agenda
-            + "<p>" + escape("Hosted by " + contact_name + " at " + organizer
-                             + ". Questions? Just reply, or write to " + contact_address + ".") + "</p>"
-            + "<p>" + escape("The two short prep questions below take a few minutes and simply tee up the "
-                             "discussion - share only what you are comfortable putting in front of peers.") + "</p>"
+            + "<h2>Themes we dig into</h2>" + topics
+            + "<p>" + escape("Questions? Just reply, or write to " + contact_address + ". Under the Chatham House "
+                             "Rule the attendee list stays private - that is what keeps it candid.") + "</p>"
             + "</body></html>")
     else:
         about_html = _page_html(
@@ -464,14 +502,22 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
                     "Round 2 is an optional self-check about " + company + "."),
     }
     if event:
-        dossier["answer_if_asked_for_names"] = event["names_answer"]
+        dossier["answer_if_asked_for_names"] = (event["names_answer"] + " The one name I can give you now is the "
+            "host, " + contact_name + ", who facilitates it; I'm glad to introduce you to one other founder once "
+            "you've confirmed, with their agreement.")
+        dossier["who_is_behind"] = northbridge_about + " " + host_bio
+        dossier["proposed_slot"] = (slot["text_en"] + " (German: " + slot["text_de"] + "). Use this exact slot; "
+            "never invent another date or state a weekday that does not match it.")
         dossier["event"] = {"name": event["name"], "format": event["format"], "cadence": event["cadence"],
-                            "audience": event["audience"], "agenda": list(event["agenda"])}
-        dossier["participant_status"] = ("A small, invite-only peer roundtable under the Chatham House Rule; "
-            "the attendee list is deliberately not shared, which is what keeps it candid.")
+                            "audience": event["audience"], "agenda": list(event["agenda"]),
+                            "topics": list(event["topics"]), "host": contact_name, "host_bio": host_bio,
+                            "organizer_about": northbridge_about, "proposed_slot": slot}
+        dossier["participant_status"] = ("A small, invite-only peer roundtable under the Chatham House Rule; the "
+            "attendee list is deliberately not shared, which is what keeps it candid. The host is named and the "
+            "about page is real; attendee names are revealed on the call itself.")
         dossier["ranking"] = "No ranking. It is a peer discussion; the two prep questions simply tee it up."
-        dossier["preview"] = (event["name"] + ": " + spec["framing"] + " Two short prep questions tee up the "
-            "discussion.")
+        dossier["preview"] = (event["name"] + ": " + spec["framing"] + " Proposed next session: " + slot["text_en"]
+            + ". Two short prep questions tee up the discussion.")
         dossier["rounds"]["about"]["title"] = event["name"]
     return dossier
 
@@ -488,8 +534,9 @@ def challenge_page(challenge: "dict[str, Any]", round_key: str) -> "dict[str, An
 def dossier_faq(challenge: "dict[str, Any]") -> "dict[str, str]":
     """The honest answers the agent must use for the common objections."""
     keys = ("organizer", "organizer_status", "contact_name", "contact_role", "contact_address",
-            "framing", "event", "participant_status", "answer_if_asked_for_names", "commissioning",
-            "ranking", "data_requested", "login", "deadline", "preview")
+            "framing", "event", "who_is_behind", "proposed_slot", "participant_status",
+            "answer_if_asked_for_names", "commissioning", "ranking", "data_requested", "login",
+            "deadline", "preview")
     return {key: challenge[key] for key in keys if key in challenge}
 
 
