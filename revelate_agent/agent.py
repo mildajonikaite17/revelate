@@ -75,22 +75,25 @@ TARGET_PLAYBOOKS = {
         "open, a result he receives, a single lower-friction action) on his preferred channel, spaced - or stop. "
         "Never fabricate names, references, data or a sample 'result', and never send a near-identical "
         "follow-up."),
-    "robert": ("Practice note (starting hypothesis - confirm against the live research, do not treat as fact): a "
-        "technical founder / CTO who responds to concrete engineering substance - systems design, reliability, "
-        "scaling, architecture trade-offs - and tunes out vague marketing or 'selected leaders' framing. APPLY THE "
-        "CROSS-TARGET LEARNINGS: (1) Open a live_chat or call with ONE sharp, specific, true engineering question "
-        "in his actual domain (a real reliability/scaling/architecture trade-off from his public work) - a smart "
-        "peer question reliably gets a senior technical person talking about his APPROACH and thinking. (2) Keep "
-        "every question about his reasoning, approach or design philosophy - NEVER his stack secrets, access, "
-        "credentials, non-public infrastructure or anything a CTO would treat as confidential; asking for internals "
-        "triggers an instant shut-down. (3) Answer his vetting plainly (who you are, who is behind it, what it is "
-        "for), and if he is guarded give the host and the about/challenge page EARLY so he can check it. (4) To get "
-        "the ACTION: when he asks for details by email, SEND THE RESOURCE WITH THE REGISTERED LINK IN THE BODY and "
-        "let opening it be the first step - that resource-first move is what earned page-opens on the other twins; "
-        "keep any on-page ask low-friction and value-returning (something he gets back), never an opinion survey. "
-        "(5) Be persistent and ADAPT across contacts - if one angle stalls, switch to genuinely different value on "
-        "his preferred channel; never re-send the same ask reworded, never fabricate names, references, data or a "
-        "result, and stop cleanly if the only thing left would be fabrication or spam."),
+    "robert": ("Practice note (CONFIRMED in a live run): Robert Seilbeck is a GERMAN, guarded CTO / technical "
+        "founder. WRITE TO HIM IN GERMAN. CRITICAL, learned the hard way: GTM / go-to-market is explicitly NOT his "
+        "topic - he said 'GTM ist nicht mein Thema, das machen die Geschaeftsfuehrer' and dismissed a founder "
+        "roundtable as 'generisch'. So NEVER pitch go-to-market, a founders' roundtable, 'selected leaders' or any "
+        "business/marketing angle - that is his co-founders' job and it kills the contact. His challenge is now the "
+        "engineering niche (Systems Reasoning), not the roundtable. WHAT TO DO: (1) Open a live_chat in German with "
+        "ONE sharp, specific SYSTEMS/RELIABILITY/ARCHITECTURE puzzle or trade-off - a genuinely interesting "
+        "engineering question a CTO enjoys chewing on (idempotency, tail-latency, queue-vs-direct, failure modes) - "
+        "not a generic 'tell me about your work' opener, which he calls out instantly. (2) Keep EVERYTHING to "
+        "general engineering reasoning and design philosophy. He will NOT discuss 'interne Release-Abwaegungen', his "
+        "stack internals, secrets, access or non-public infrastructure - asking shuts him down; frame questions as "
+        "abstract puzzles, never about his own systems. (3) He vets hard: answer who you are / who is behind it / "
+        "what it is for plainly and in German, and give the host and the challenge/about page EARLY. (4) The ACTION "
+        "is the Systems Reasoning challenge itself - sharp, low-threat puzzles a CTO may actually enjoy solving, "
+        "with no confidentiality cost. When he asks for details by email, SEND THE RESOURCE WITH THE REGISTERED "
+        "LINK IN THE BODY so opening it is the first step, and point him at the puzzles (not an event). (5) Be "
+        "persistent and ADAPT - if an angle stalls, switch to a genuinely different engineering hook on his "
+        "preferred channel; never re-send the same ask reworded, never fabricate names/references/data, and stop "
+        "cleanly rather than spam."),
 }
 
 # Which founders get the solo, action-first benchmark instead of the peer roundtable.
@@ -107,6 +110,12 @@ TARGET_RUN_PROFILE = {
     "tom": {"persistent": True, "max_contacts": 24},
     "robert": {"persistent": True, "max_contacts": 24},
 }
+
+# Per-target niche override: the auto-categoriser read Robert as a GTM "founder" and
+# handed him the go-to-market roundtable, but he is a technical CTO who said outright
+# "GTM ist nicht mein Thema". Pin him to the engineering niche so the whole challenge
+# is systems/reliability, not go-to-market. An explicit --category still wins.
+TARGET_CATEGORY = {"robert": "technical"}
 
 
 def merge_events(existing, incoming):
@@ -210,7 +219,9 @@ class AgentRunner:
                 "allowed_source_urls": [f["source_url"] for f in self.state["profile"].get("facts", [])]})
             self.save()
         if not self.state.get("category"):
-            category = self.state.get("category_override") or categorize(self.state["work_profile"])
+            category = (self.state.get("category_override")
+                        or TARGET_CATEGORY.get(self.state["target"].get("id", ""))
+                        or categorize(self.state["work_profile"]))
             self.state["category"] = category
             self.log("Selected niche: " + category + " (" + self.state["work_profile"].get("seniority", "?") + ")")
             self.save()
