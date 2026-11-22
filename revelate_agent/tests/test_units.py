@@ -270,6 +270,18 @@ class KnowledgeTests(unittest.TestCase):
         self.assertEqual(kn.categorize({"employment_relationship": "co-founder", "seniority": "Co-CEO",
                                         "function": "go-to-market"}), "founder")
 
+    def test_functional_role_drives_domain(self):
+        # The model's explicit functional_role wins over title/sector keywords - the Robert fix.
+        s = kn.segment_profile({"employment_relationship": "co-founder", "seniority": "Founder",
+                                "sector": "cybersecurity", "functional_role": "technical"})
+        self.assertEqual(s["domain"], "technical")
+        # Without functional_role, a bare founder still falls back to commercial (old behaviour).
+        s = kn.segment_profile({"employment_relationship": "co-founder", "seniority": "Founder"})
+        self.assertEqual(s["domain"], "commercial")
+        # A GTM founder stated commercial stays commercial.
+        s = kn.segment_profile({"seniority": "Co-CEO", "functional_role": "commercial"})
+        self.assertEqual(s["domain"], "commercial")
+
     def test_segment_profile_axes(self):
         # senior commercial founder, German (Julius-shaped)
         s = kn.segment_profile({"employment_relationship": "co-founder", "seniority": "Co-CEO",

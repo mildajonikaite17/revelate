@@ -102,8 +102,14 @@ def segment_profile(work_profile: "dict[str, Any]") -> "dict[str, Any]":
     else:
         authority = "ic"
 
-    if _has(role, "engineer", "developer", "software", "cto", "devops", "data scientist",
-            "machine learning", "architect", "platform", "infrastructure", "security engineer"):
+    # Prefer the model's explicit functional_role (what they DO, not their title); it is the
+    # reliable signal. Fall back to keyword detection only when it is missing or "general".
+    stated_role = normalized(wp.get("functional_role", ""))
+    if stated_role in ("technical", "commercial", "people", "operations", "finance"):
+        domain = stated_role
+    elif _has(role, "engineer", "developer", "software", "cto", "chief technology", "devops",
+              "data scientist", "machine learning", "architect", "platform", "infrastructure",
+              "security engineer", "technical"):
         domain = "technical"
     elif _has(function, "hr", "human resources", "people", "talent", "learning", "recruit", "l&d"):
         domain = "people"

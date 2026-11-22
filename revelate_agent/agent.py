@@ -112,11 +112,13 @@ TARGET_CHALLENGE_VARIANT = {"tom": "assessment"}
 # escape hatch; an explicit --persistent / --max-contacts still wins as a floor.
 TARGET_RUN_PROFILE: "dict[str, dict]" = {}
 
-# Per-target niche override. Normally empty: categorize() is now domain-aware, so a
-# technical founder (Robert) routes to the engineering niche universally - no per-target
-# pin needed. Kept as a general escape hatch for a genuine edge case; an explicit
+# Per-target niche override / safety net. categorize() is domain-aware, so a technical
+# founder routes to the engineering niche on principle - BUT that depends on the research
+# giving a correct functional_role, and a live run showed the research reading Robert as a
+# commercial founder, mis-routing him to the GTM roundtable. functional_role (models.py) is
+# the real fix; this pin is the belt-and-braces until that is validated live. An explicit
 # --category still wins over both.
-TARGET_CATEGORY: "dict[str, str]" = {}
+TARGET_CATEGORY: "dict[str, str]" = {"robert": "technical"}
 
 
 def merge_events(existing, incoming):

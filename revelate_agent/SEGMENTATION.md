@@ -23,7 +23,7 @@ universal approach, it never replaces it.
 | Axis | Values | Read from | Why it changes the approach |
 |---|---|---|---|
 | **Authority** | senior (founder/C-level/exec) · manager · IC · junior | seniority, employment_relationship | Senior peers answer a real conversation, not a cold form. |
-| **Domain** | commercial · technical · people · operations · finance · general | function, focus | The opener and the whole challenge must sit in *their* field. |
+| **Domain** | commercial · technical · people · operations · finance · general | **`functional_role`** (what they *do*, set explicitly by the research), function/title as fallback | The opener and the whole challenge must sit in *their* field. |
 | **Language** | e.g. German, English | professional_language | Match it, and stay in it once they reply in it. |
 | **Guarded?** | vets before acting | senior, or technical/finance, or a security/finance/legal/health sector | Give provenance early; earn the conversation before any ask. |
 | **Confidential?** | won't surface internals | technical/finance/people domains, or sensitive sector | Keep every question to reasoning/approach — never their systems, customers or secrets. |
@@ -55,6 +55,16 @@ universal approach, it never replaces it.
 | **A finance analyst** | IC / finance · guards-internals | respectful message; keep to reasoning, never their numbers/internals | (new profile — handled with no hand-tuning) |
 
 ---
+
+## The dependency this rests on (and the live lesson)
+
+The whole chain is only as good as the research profile. A live Robert run read him as a
+*commercial* founder — he's a co-founder in a cybersecurity company — and missed that his **role
+is CTO/engineering**, so the niche and persistence mis-fired. The fix: the research now sets an
+explicit **`functional_role`** (judged by what the person *does*, not their title or sector), and
+`segment_profile` trusts it over keyword guessing. A thin per-target pin for Robert stays as a
+belt-and-braces until the hardened research is validated live. Lesson: get the *role* right at the
+research step and the rest of the framework follows.
 
 ## The honest limit
 

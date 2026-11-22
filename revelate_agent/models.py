@@ -39,6 +39,7 @@ CALL_CHANNELS = ["phone_call", "live_chat"]
 ALL_CHANNELS = MESSAGE_CHANNELS + CALL_CHANNELS
 CATEGORIES = ["founder", "executive", "manager", "individual_contributor",
               "technical", "hr_learning", "operations", "intern", "independent"]
+FUNCTIONAL_ROLES = ["technical", "commercial", "people", "operations", "finance", "general"]
 OBJECTIVES = ["disclosure", "action", "credentials"]
 ROUNDS = ["about", "round1", "round2", "confirm"]
 TRIGGERS = ["ignored", "verification_questions", "opened_without_submission", "submitted", "refused"]
@@ -71,6 +72,7 @@ SCHEMAS = {
         "seniority": STRING,
         "evidenced_authority": STRING,
         "professional_focus": STRING,
+        "functional_role": {"type": "string", "enum": FUNCTIONAL_ROLES},
         "professional_language": STRING,
         "location": STRING,
         "evidenced_tools_or_processes": _array(STRING),
@@ -184,9 +186,17 @@ are one-person, 2-9, 10-49, 50-249, 250+, network or unknown (design bands, not 
 Record the whole organisation AND the actual operating unit; a large parent does not imply a large
 team. A title alone does not establish system access, budget or approval rights. Never infer
 susceptibility from age, gender, nationality, health or other sensitive personal traits.
+functional_role is the ONE thing this person actually does day to day, judged by their work, NOT
+their title or their company's sector: technical (builds/runs the product or systems - engineering,
+CTO, data, infra, security engineering), commercial (go-to-market, sales, marketing, revenue, a
+GTM-leading CEO), people (HR, talent, learning), operations (ops, logistics, supply chain),
+finance, or general. A co-founder who is the CTO is technical, not commercial; a co-founder who runs
+go-to-market is commercial. Do not default a founder to commercial - decide from what they personally
+do. This field drives how the agent approaches them, so get the lane right.
 recommended_category must be the single best-fitting niche for a tailored challenge: founder,
 executive, manager, individual_contributor, technical, hr_learning, operations, intern or
-independent. Base it on seniority, function and employment relationship, not prestige.
+independent. Base it on seniority, function and employment relationship, not prestige - and keep it
+consistent with functional_role (a technical founder fits the technical niche, not a GTM one).
 relevant_topics: the few subjects this person clearly cares about, taken from the evidence.
 engagement_hooks: two to four concrete, specific angles that would actually make THIS person reply -
 a recent launch to ask their view on, a topic they champion, a problem they raised, a decision they

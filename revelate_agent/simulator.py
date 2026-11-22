@@ -158,6 +158,8 @@ class SimulatedModel:
                 "organisation_size_band": "2-9", "unit_size_band": "2-9", "sector": "software",
                 "ownership": "private", "function": "leadership", "seniority": "Founder",
                 "evidenced_authority": "Runs the company.", "professional_focus": "company direction",
+                "functional_role": {"technical": "technical", "hr_learning": "people",
+                                    "operations": "operations"}.get(self.category, "general"),
                 "professional_language": "English", "location": "unknown",
                 "evidenced_tools_or_processes": [], "work_relationships": [],
                 "tenure_or_recent_changes": "unknown", "unknowns": ["Most specifics are unknown offline."],

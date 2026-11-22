@@ -63,6 +63,7 @@ def work_profile(category="founder"):
             "host_institution": "unknown", "operating_unit": "company", "organisation_size_band": "2-9",
             "unit_size_band": "2-9", "sector": "software", "ownership": "private", "function": "leadership",
             "seniority": "Founder", "evidenced_authority": "runs it", "professional_focus": "direction",
+            "functional_role": "commercial",
             "professional_language": "English", "location": "unknown", "evidenced_tools_or_processes": [],
             "work_relationships": [], "tenure_or_recent_changes": "unknown", "unknowns": [],
             "recommended_category": category, "category_rationale": "fixture",
