@@ -58,6 +58,104 @@ def categorize(work_profile: "dict[str, Any]") -> str:
     return "individual_contributor"
 
 
+# ---- segmentation: HOW to approach a profile ---------------------------------
+# categorize() picks WHAT challenge niche fits. segment_profile() + derive_approach()
+# decide HOW to approach the person, from the same verified profile - a single,
+# universal decision layer so any profile is handled on principle, not per-target
+# hand-tuning. The axes and rules are the generalisation of what the live runs taught
+# (senior founders warm up to a real-time peer question; experts vet before they act;
+# technical/finance/security people will not surface internals; people who publish
+# their views will not re-submit them; nobody responds to a generic survey or to spam).
+
+def segment_profile(work_profile: "dict[str, Any]") -> "dict[str, Any]":
+    """Classify a verified profile along the axes that decide HOW to approach it."""
+    wp = work_profile or {}
+    employment = normalized(wp.get("employment_relationship", ""))
+    seniority = normalized(wp.get("seniority", ""))
+    function = normalized(wp.get("function", ""))
+    focus = normalized(wp.get("professional_focus", ""))
+    sector = normalized(wp.get("sector", ""))
+    role = " ".join((employment, seniority, function, focus))
+    hooks = normalized(" ".join(list(wp.get("relevant_topics", [])) + list(wp.get("engagement_hooks", []))))
+
+    if _has(employment, "founder", "owner", "co-founder", "proprietor") or _has(
+            seniority, "founder", "owner", "ceo", "chief", "c-level", "cto", "cfo", "coo",
+            "vp", "vice president", "director", "head of", "partner", "executive"):
+        authority = "senior"
+    elif _has(seniority, "intern", "trainee", "apprentice", "working student", "graduate", "new starter", "junior"):
+        authority = "junior"
+    elif _has(seniority, "manager", "lead", "supervisor", "team lead", "principal", "head"):
+        authority = "manager"
+    else:
+        authority = "ic"
+
+    if _has(role, "engineer", "developer", "software", "cto", "devops", "data scientist",
+            "machine learning", "architect", "platform", "infrastructure", "security engineer"):
+        domain = "technical"
+    elif _has(function, "hr", "human resources", "people", "talent", "learning", "recruit", "l&d"):
+        domain = "people"
+    elif _has(function, "operations", "logistics", "supply chain", "procurement", "fulfil", "warehouse"):
+        domain = "operations"
+    elif _has(function, "finance", "accounting", "controller", "treasury"):
+        domain = "finance"
+    elif _has(role, "sales", "marketing", "growth", "go-to-market", "gtm", "commercial",
+              "revenue", "business development", "founder", "ceo"):
+        domain = "commercial"
+    else:
+        domain = "general"
+
+    language = (wp.get("professional_language") or "their language").strip() or "their language"
+    real_time_first = authority in ("senior", "manager")
+    guarded = authority == "senior" or domain in ("technical", "finance") or _has(sector, "security", "finance", "legal", "health", "defence", "defense")
+    confidential = domain in ("technical", "finance", "people") or _has(sector, "security", "finance", "legal", "health", "defence", "defense")
+    public_voice = _has(hooks, "magazine", "blog", "talk", "speaker", "podcast", "keynote", "author", "writes", "publishes", "column", "thought leader")
+
+    return {"authority": authority, "domain": domain, "language": language,
+            "real_time_first": real_time_first, "guarded": guarded,
+            "confidential": confidential, "public_voice": public_voice,
+            "label": authority + "/" + domain}
+
+
+def derive_approach(work_profile: "dict[str, Any]") -> str:
+    """Turn the segmentation into concrete, universal approach guidance for THIS profile."""
+    s = segment_profile(work_profile)
+    lang = s["language"]
+    lines = ["APPROACH (derived from this profile's segmentation - apply on principle, not by rote):",
+             "- SEGMENT: " + s["label"] + " authority, working in " + lang + "."]
+    if s["real_time_first"]:
+        lines.append("- CHANNEL: open REAL-TIME (live_chat or phone_call) in " + lang +
+                     ", not a cold form - a senior peer answers a real conversation far more than an email.")
+    else:
+        lines.append("- CHANNEL: a short, respectful message in " + lang + " works; a well-scoped task or "
+                     "challenge can lead, as this person is less likely to want a live peer call.")
+    lines.append("- OPEN: one sharp, TRUE, specific question in their OWN domain (" + s["domain"] +
+                 "), taken from engagement_hooks - never generic, never a 'selected leaders' or survey line, "
+                 "and never a cross-domain pitch (do not raise go-to-market with an engineer, or deep tech with "
+                 "a commercial lead).")
+    if s["guarded"]:
+        lines.append("- TRUST: they VET before they act - answer who you are / who is behind it / what it is for "
+                     "plainly, and give the host and the about/challenge page EARLY so they can check it; earn the "
+                     "conversation before any ask.")
+    else:
+        lines.append("- TRUST: move to the gamified challenge once the opener lands; keep proof-of-identity handy "
+                     "but you need not front-load it.")
+    action = ("- ACTION: to get them onto the site, DELIVER A RESOURCE THEY OPEN (send the registered link in the "
+              "body, let opening it be the first step) and make the on-page task LOW-FRICTION and VALUE-RETURNING - "
+              "something they get back, framed in their domain. Never an opinion survey, never data-extraction.")
+    if s["public_voice"]:
+        action += " They PUBLISH their own views, so never ask them to submit opinions they already make public - "
+        action += "give them a result or tool instead."
+    lines.append(action)
+    avoid = "- AVOID: fabricated names/references/data and any near-identical repeat (both read as a scam or spam)."
+    if s["confidential"]:
+        avoid += " They will NOT surface internals, customers, secrets, stack or non-public work - keep every "
+        avoid += "question to their reasoning and approach in the abstract."
+    lines.append(avoid)
+    lines.append("- PERSIST: if an angle stalls, switch to genuinely NEW value on their preferred channel; never "
+                 "repeat an ask in new words; stop cleanly rather than fabricate or spam.")
+    return "\n".join(lines)
+
+
 # ---- question tracking -------------------------------------------------------
 
 def question_id(quote: str) -> str:

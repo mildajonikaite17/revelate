@@ -21,8 +21,8 @@ import uuid
 from models import ModelError
 from policy import validate_action, compute_metrics, _is_sensitive_field
 from protocol import TargetAPI, APIError, RunStore, now
-from knowledge import (normalized, categorize, add_questions, engagement_update,
-                       task_kind, coverage_failures)
+from knowledge import (normalized, categorize, derive_approach, segment_profile,
+                       add_questions, engagement_update, task_kind, coverage_failures)
 from challenge import build_challenge, challenge_page, dossier_faq, render_preview_html
 
 
@@ -217,6 +217,22 @@ class AgentRunner:
             self.state["work_profile"] = self.model_call("profile", {
                 "target": self.state["target"], "research": self.state["profile"],
                 "allowed_source_urls": [f["source_url"] for f in self.state["profile"].get("facts", [])]})
+            self.save()
+        if self.state.get("work_profile") and not self.state.get("approach_derived"):
+            # Universal decision layer: derive HOW to approach THIS profile from its
+            # segmentation. Any per-target note is kept only as a thin confirmed supplement.
+            segment = segment_profile(self.state["work_profile"])
+            approach = derive_approach(self.state["work_profile"])
+            note = TARGET_PLAYBOOKS.get(self.state["target"].get("id", ""), "")
+            self.state["segment"] = segment
+            self.state["practice_playbook"] = approach + (
+                ("\n\nConfirmed notes for this specific target (observed live; they refine the approach above, "
+                 "never contradict it):\n" + note) if note else "")
+            self.state["approach_derived"] = True
+            self.log("Segment: " + segment["label"] + " | " + segment["language"]
+                     + (" | vets-first" if segment["guarded"] else "")
+                     + (" | guards-internals" if segment["confidential"] else "")
+                     + (" | publishes-views" if segment["public_voice"] else ""))
             self.save()
         if not self.state.get("category"):
             category = (self.state.get("category_override")

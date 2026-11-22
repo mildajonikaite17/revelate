@@ -259,6 +259,39 @@ class KnowledgeTests(unittest.TestCase):
         self.assertEqual(kn.categorize({"seniority": "Team Lead"}), "manager")
         self.assertEqual(kn.categorize({"seniority": "Analyst", "function": "finance"}), "individual_contributor")
 
+    def test_segment_profile_axes(self):
+        # senior commercial founder, German (Julius-shaped)
+        s = kn.segment_profile({"employment_relationship": "co-founder", "seniority": "Co-CEO",
+                                "function": "go-to-market", "professional_language": "German"})
+        self.assertEqual(s["label"], "senior/commercial")
+        self.assertTrue(s["real_time_first"] and s["guarded"])
+        self.assertEqual(s["language"], "German")
+        # technical founder/CTO guards internals (Robert-shaped)
+        s = kn.segment_profile({"employment_relationship": "co-founder", "seniority": "CTO", "function": "engineering"})
+        self.assertEqual(s["label"], "senior/technical")
+        self.assertTrue(s["confidential"])
+        # public-voice flag (Tom-shaped)
+        s = kn.segment_profile({"seniority": "Founder", "function": "product", "sector": "security",
+                                "engagement_hooks": ["writes in the revel8 magazine"]})
+        self.assertTrue(s["public_voice"])
+        # junior is not real-time-first
+        s = kn.segment_profile({"seniority": "Summer intern", "function": "marketing"})
+        self.assertEqual(s["authority"], "junior")
+        self.assertFalse(s["real_time_first"])
+
+    def test_derive_approach_is_universal_and_safe(self):
+        for wp in ({"seniority": "CTO", "function": "engineering", "professional_language": "German"},
+                   {"seniority": "Summer intern", "function": "marketing"},
+                   {"seniority": "Analyst", "function": "finance"},
+                   {}):
+            text = kn.derive_approach(wp)
+            self.assertIn("APPROACH", text)
+            self.assertIn("fabricate", text.lower())  # every profile: never fabricate / spam
+        # technical/engineering guidance forbids internals and cross-domain pitching
+        eng = kn.derive_approach({"seniority": "CTO", "function": "engineering"})
+        self.assertIn("internals", eng)
+        self.assertIn("go-to-market with an engineer", eng)
+
     def test_add_questions_grounded(self):
         utterance = "Who is behind this? Please send the draft by email."
         incoming = [
