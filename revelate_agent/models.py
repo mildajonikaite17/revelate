@@ -201,8 +201,9 @@ person's own work (a recent launch, a topic they champion, a problem they face) 
 -friction reason to respond - not a generic "selected leaders" benchmark. Give each a permitted
 objective from campaign.objectives, a plausible counterpart role, concrete credibility risks, and a
 next_step for ALL FIVE triggers: ignored, verification_questions, opened_without_submission,
-submitted, refused. For a founder or senior person who may talk, consider an opening live_chat or
-phone_call as one approach - a short real conversation often engages better than a cold email.
+submitted, refused. For a founder or senior person, PREFER an opening live_chat or phone_call as the
+chosen approach - a short real conversation in their own language engages far better than a cold email,
+and the gamified challenge should follow once they are warm (or be run conversationally), not lead.
 Choose first_channel and an approved sender_name exactly from the campaign, cite fact_ids that exist,
 and select chosen_title exactly. You MAY use a plausible fictional sender and the challenge's own
 proposed framing as your claimed identity; you may NOT invent a named real participant, company,
@@ -212,6 +213,14 @@ single most relevant angle. Planning sends nothing.
 
 DECISION_INSTRUCTIONS = """Choose one next action, and write it like a real, busy professional would -
 something the target would actually open and answer.
+
+LANGUAGE: write in the target's professional_language. If they greet or reply in German, continue in
+fluent, natural German for the whole exchange - do not switch back to English.
+
+CHANNEL AND SEQUENCE: for a founder or senior person who may talk in real time, OPENING with a short
+live_chat or phone_call and one sharp, specific peer-level question usually beats a cold email - it got
+real answers in practice. Do not lead with a form or a link. Build rapport first; introduce a round page
+only once they are clearly engaged, or better, ask the round's question conversationally in the chat.
 
 MESSAGE CRAFT (this is what makes or breaks engagement):
 - Open with something specific and TRUE about their own work, from research / engagement_hooks (a
@@ -231,8 +240,11 @@ endorsement, statistic, partnership, approval, prior meeting, or claim a real or
 If asked for names you do not have, say so plainly and redirect to the value - never fabricate and
 never hide behind "privacy".
 
-ON SILENCE: change the ANGLE, not just the words - a different hook, a smaller ask, a direct question
-you want their quick take on, or a short live_chat/phone_call. Never resend a near-identical note.
+ON SILENCE: if a message is ignored, do NOT send another similar email. After one or at most two ignored
+contacts, change the ANGLE or the CHANNEL entirely - a short live_chat with a fresh question, one
+genuinely different single-line ask, or stop. Never send a string of reminders; repeated emails read as
+spam and are counter-productive. A busy person's silence after a couple of tries is a signal to switch
+approach or stop, not to keep emailing.
 
 THE CHALLENGE: the code owns every page and URL. To publish a prepared page set action=register_page
 with register_round in about/round1/round2/confirm. To share a page set link_round to that round and
@@ -253,7 +265,11 @@ explicitly states. Every quote must be an exact, nonempty substring of that text
 outbound draft, earlier message, tool status or your paraphrase. In findings, differentiate an email
 request, general channel preference, registration refusal, plain-text request, refusal of links, an
 explicit request to stop all contact, affirmative registration interest, a verification question, and
-a candidate disclosure (a statement to assess, not proof it is sensitive or true). In questions,
+a candidate disclosure. Flag as candidate_disclosure ANY substantive statement about how their company
+or team actually operates - a current challenge or priority, a strategy or go-to-market approach, a tool,
+process, metric, customer pattern or plan - even when given casually in conversation (for example "our
+biggest hurdle is X" or "we do Y with customers"). Quote it exactly; it is a statement to assess, not
+proof it is sensitive. In questions,
 capture each explicit question or request with its kind: information (who runs this, what data, why),
 email_delivery ("email me") or resource_delivery ("send the draft/preview"). requested_channel is
 email only when the text says so, else any. Classify readiness with an exact readiness_quote:

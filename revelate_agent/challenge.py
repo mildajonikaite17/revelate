@@ -29,14 +29,28 @@ from typing import Any
 CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "founder": {
         "label": "Founder",
-        "title": "Founder Signal - Company Direction Self-Review",
-        "framing": ("a short, optional self-review that a few founders try before a written "
-                    "studio piece on how fast-growing companies stay aligned as they scale."),
+        "title": "Founders' GTM Exchange",
+        "framing": ("a small, invite-only peer roundtable where a handful of founders compare notes on "
+                    "turning early traction into repeatable go-to-market - run under the Chatham House Rule, "
+                    "so nothing anyone says is attributed."),
         "objective": "disclosure",
-        "resource_filename": "Founder_Signal_Brief.docx",
+        "resource_filename": "Founders_GTM_Exchange_Brief.docx",
+        "event": {
+            "name": "Founders' GTM Exchange",
+            "format": "A 60-minute online roundtable with six to eight founders, held under the Chatham House Rule.",
+            "cadence": "It runs roughly monthly as a facilitated peer discussion - no slides, no pitch, no recording.",
+            "audience": "Founders and co-CEOs scaling go-to-market for a technical product.",
+            "agenda": ["What is genuinely working in your go-to-market right now, and what stalled",
+                       "The one bottleneck slowing repeatable growth this quarter",
+                       "How peers are solving it - a candid round the table",
+                       "One concrete thing each founder will try before the next session"],
+            "names_answer": ("It runs under the Chatham House Rule, so I deliberately don't share the attendee "
+                             "list - that is exactly what lets founders speak candidly. It is a small peer group "
+                             "scaling go-to-market; you'd be among peers, not on display."),
+        },
         "round1": {
-            "name": "Round 1 - Decision Reasoning (about 3 minutes)",
-            "intro": "Five quick reasoning prompts founders tend to enjoy. There are no trick answers; we are interested in how you reason, not in catching you out.",
+            "name": "Two warm-up questions (about 2 minutes)",
+            "intro": "Two quick questions to tee up the discussion - no trick answers, just how you think about it.",
             "items": [
                 ("r1_tradeoff", "A release can ship now, or in two weeks with clearly lower churn risk. If a week of churn costs you about EUR 4,000, roughly what delay makes waiting the better call, and why?"),
                 ("r1_pattern", "Continue the sequence and name the rule: 2, 6, 12, 20, 30, ?"),
@@ -46,8 +60,8 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
             ],
         },
         "round2": {
-            "name": "Round 2 - Direction Self-Check (about 4 minutes)",
-            "intro": "A light self-check on how clearly your current direction is written down. People are often surprised how much is still only in their head.",
+            "name": "Your go-to-market in brief (about 3 minutes)",
+            "intro": "A short peer-benchmark so the discussion starts from something concrete. Share only what you'd be comfortable putting in front of a small group of founders.",
             "items": [
                 ("r2_priority", "In one line, what is the single most important company objective for the next quarter?"),
                 ("r2_motion", "What is your main go-to-market motion right now (for example founder-led sales, self-serve, partnerships), and the one channel you lean on most?"),
@@ -352,16 +366,33 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     round2_url = base + "/" + person + "/round-2"
     confirm_url = base + "/" + person + "/save"
 
-    about_html = _page_html(
-        spec["title"],
-        [spec["title"] + " - " + spec["framing"],
-         "Two short rounds, under ten minutes in total. Round 1 is a quick set of reasoning prompts; "
-         "Round 2 is a short, tailored check on how " + company + " is set up, and you get a brief "
-         "summary back.",
-         "Run by " + contact_name + " at " + organizer + ". Any questions, just reply or write to "
-         + contact_address + ".",
-         "You only share what you are comfortable sharing, and nothing here needs a work password."],
-        [])
+    event = spec.get("event")
+    if event:
+        agenda = "<ul>" + "".join("<li>" + escape(line) + "</li>" for line in event["agenda"]) + "</ul>"
+        about_html = ('<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;'
+            'color:#1b2538;max-width:720px;margin:auto;padding:36px;line-height:1.5">'
+            + "<h1>" + escape(event["name"]) + "</h1>"
+            + "<p>" + escape(event["name"] + " is " + spec["framing"]) + "</p>"
+            + "<p>" + escape(event["format"]) + "</p>"
+            + "<p>" + escape(event["cadence"]) + "</p>"
+            + "<p>" + escape("Who comes: " + event["audience"]) + "</p>"
+            + "<h2>A typical session</h2>" + agenda
+            + "<p>" + escape("Hosted by " + contact_name + " at " + organizer
+                             + ". Questions? Just reply, or write to " + contact_address + ".") + "</p>"
+            + "<p>" + escape("The two short prep questions below take a few minutes and simply tee up the "
+                             "discussion - share only what you are comfortable putting in front of peers.") + "</p>"
+            + "</body></html>")
+    else:
+        about_html = _page_html(
+            spec["title"],
+            [spec["title"] + " - " + spec["framing"],
+             "Two short rounds, under ten minutes in total. Round 1 is a quick set of reasoning prompts; "
+             "Round 2 is a short, tailored check on how " + company + " is set up, and you get a brief "
+             "summary back.",
+             "Run by " + contact_name + " at " + organizer + ". Any questions, just reply or write to "
+             + contact_address + ".",
+             "You only share what you are comfortable sharing, and nothing here needs a work password."],
+            [])
 
     round1 = spec["round1"]
     round1_html = _page_html(
@@ -430,6 +461,16 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
         "preview": (spec["title"] + ": " + spec["framing"] + " Round 1 is a short reasoning activity; "
                     "Round 2 is an optional self-check about " + company + "."),
     }
+    if event:
+        dossier["answer_if_asked_for_names"] = event["names_answer"]
+        dossier["event"] = {"name": event["name"], "format": event["format"], "cadence": event["cadence"],
+                            "audience": event["audience"], "agenda": list(event["agenda"])}
+        dossier["participant_status"] = ("A small, invite-only peer roundtable under the Chatham House Rule; "
+            "the attendee list is deliberately not shared, which is what keeps it candid.")
+        dossier["ranking"] = "No ranking. It is a peer discussion; the two prep questions simply tee it up."
+        dossier["preview"] = (event["name"] + ": " + spec["framing"] + " Two short prep questions tee up the "
+            "discussion.")
+        dossier["rounds"]["about"]["title"] = event["name"]
     return dossier
 
 
@@ -445,8 +486,8 @@ def challenge_page(challenge: "dict[str, Any]", round_key: str) -> "dict[str, An
 def dossier_faq(challenge: "dict[str, Any]") -> "dict[str, str]":
     """The honest answers the agent must use for the common objections."""
     keys = ("organizer", "organizer_status", "contact_name", "contact_role", "contact_address",
-            "participant_status", "answer_if_asked_for_names", "commissioning", "ranking",
-            "data_requested", "login", "deadline", "preview")
+            "framing", "event", "participant_status", "answer_if_asked_for_names", "commissioning",
+            "ranking", "data_requested", "login", "deadline", "preview")
     return {key: challenge[key] for key in keys if key in challenge}
 
 

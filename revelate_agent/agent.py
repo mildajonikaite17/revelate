@@ -30,20 +30,27 @@ class AgentError(Exception):
     pass
 
 
-GENERAL_PLAYBOOK = ("No special practice notes for this target. Lead entirely with the research: their "
-    "actual role, recent public work and the profile's engagement_hooks. Use the niche the profile "
-    "recommends and open with the single most relevant, specific hook - never a generic 'selected "
-    "leaders' or 'benchmark' line.")
+GENERAL_PLAYBOOK = ("Lead with the research: their actual role, recent public work and the profile's "
+    "engagement_hooks, written in their professional_language. For a founder or senior person who may talk "
+    "in real time, OPEN with a short live_chat/phone_call and one sharp, specific peer-level question "
+    "rather than a cold form - it engages far better. Introduce the gamified mini-challenge only once they "
+    "are warm, or run its questions conversationally. Never open with a 'selected leaders' or 'benchmark' "
+    "line, and never bury them in repeated emails.")
 
 # Starting hypotheses for the three practice twins, consistent with the team's selection guide.
 # They are confirmed or overridden by the live research, never treated as verified facts.
 TARGET_PLAYBOOKS = {
-    "julius": ("Practice note (starting hypothesis - confirm with research): a go-to-market / business "
-        "founder at a security-awareness company. His twin has engaged most on employee-facing AI "
-        "impersonation, reporting suspicious requests, and how organisations turn security reports into "
-        "action - a specific, relevant discussion of that space beats any generic benchmark. Lead with "
-        "his real product, market and recent public work; a short live_chat or a concrete founder-to-peer "
-        "question can open the door."),
+    "julius": ("Practice note (confirmed in live practice): a German go-to-market / co-CEO founder at a "
+        "Munich security-awareness company. WRITE TO HIM IN GERMAN. He warms up fast on a real-time "
+        "live_chat opened with a specific, peer-level founder question about his domain - international GTM "
+        "for AI security awareness, AI impersonation, and getting past click-through e-learning to "
+        "live-demo-led awareness - and he gives real answers in conversation. He is allergic to anything "
+        "that smells like a 'general survey' from an unknown studio, to forms before trust, and to repeated "
+        "emails. So: OPEN with a short German live_chat and a sharp question, build rapport, capture what he "
+        "shares, and run the mini-challenge CONVERSATIONALLY or offer it only once he is clearly engaged - "
+        "never as the cold first ask, never a string of reminders. If he asks who is behind it, answer "
+        "concretely and confidently with the roundtable and its host - not a deflating 'just a pilot'. Back "
+        "the invitation with the concrete founder roundtable event, not a vague review."),
     "tom": ("Practice note (starting hypothesis - confirm with research): a product-oriented founder. He "
         "responds to concrete product and process topics - how teams design assessments, scope work and "
         "hand things over - not a prestige benchmark. Lead with his product and one specific, useful "
@@ -112,7 +119,7 @@ class AgentRunner:
             "persistent": bool(self.campaign.get("persistent", False)),
             "contact_cap": self._budget("max_contacts", 8),
             "operations": [], "rejected_drafts": [], "stop_reviews": [], "last_errors": [],
-            "objective_evidence": None,
+            "objective_evidence": None, "channel_unlocked": False,
         }
         self.save()
 
@@ -133,6 +140,7 @@ class AgentRunner:
     # ---- setup phases --------------------------------------------------------
     def initialize(self):
         self.state.setdefault("practice_playbook", TARGET_PLAYBOOKS.get(self.state["target"].get("id", ""), GENERAL_PLAYBOOK))
+        self.state.setdefault("channel_unlocked", False)
         if not self.state.get("profile"):
             self.log("Researching public professional context...")
             self.state["profile"] = self.model_call("research", self.state["target"], self.campaign.get("team_brief", ""))
@@ -431,6 +439,15 @@ class AgentRunner:
             return
         self.state["pending_questions"] = [q for q in self.state["pending_questions"] if q["id"] not in answered]
 
+    def _consecutive_ignored(self):
+        """How many of the most recent sent messages got no reaction at all."""
+        streak = 0
+        for message in reversed(self.state.get("messages", [])):
+            if (message.get("response", {}) or {}).get("events"):
+                break
+            streak += 1
+        return streak
+
     # ---- objective detection -------------------------------------------------
     def _check_objective(self):
         metrics = compute_metrics(self.state)
@@ -506,6 +523,11 @@ class AgentRunner:
                     self.state["objective_evidence"] = evidence
                     self.save()
                     return self.finish("objective_evidence", "Observed objective evidence: " + evidence["evidence"])
+                ignored_streak = self._consecutive_ignored()
+                if ignored_streak >= 2:
+                    self.state["channel_unlocked"] = True  # let the agent switch channel instead of re-emailing
+                if ignored_streak >= 4 and not self.state["active_conversation"]:
+                    return self.finish("stopped_exhausted", "Repeated contacts were ignored on this approach; stopping rather than sending more of the same.")
                 active = self.state["active_conversation"]
                 constraints = self.state["constraints"]
                 forced = None

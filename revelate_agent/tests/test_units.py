@@ -320,11 +320,19 @@ class ChallengeTests(unittest.TestCase):
             self.assertEqual(errors, [], f"{key}: {errors}")
 
     def test_dossier_is_honest(self):
-        challenge = ch.build_challenge("founder", {}, {"id": "julius", "name": "Julius"}, "company-direction-review.com", {})
+        challenge = ch.build_challenge("manager", {}, {"id": "x", "name": "X"}, "company-direction-review.com", {})
         faq = ch.dossier_faq(challenge)
         self.assertIn("No", faq["answer_if_asked_for_names"])
         self.assertIn("pilot", faq["participant_status"].lower())
         self.assertNotIn("confirmed participants include", json.dumps(faq).lower())
+
+    def test_founder_is_a_credible_roundtable_event(self):
+        challenge = ch.build_challenge("founder", {}, {"id": "julius", "name": "Julius"}, "company-direction-review.com", {})
+        self.assertIn("event", challenge)
+        self.assertIn("Chatham House", challenge["answer_if_asked_for_names"])
+        self.assertEqual(_page_static_errors(ch.challenge_page(challenge, "about")["html"]), [])
+        # The honest "no fabricated participants" property still holds.
+        self.assertNotIn("confirmed participants include", json.dumps(ch.dossier_faq(challenge)).lower())
 
     def test_preview_html_renders(self):
         challenge = ch.build_challenge("technical", {"employer_or_practice": "Acme"}, {"id": "robert", "name": "Robert"},

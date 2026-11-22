@@ -225,7 +225,9 @@ def validate_action(action: dict, state: dict, campaign: dict) -> "list[str]":
         if session.get("status") != "active" or _number(session.get("touches_used"), budget) >= budget:
             errors.append("The session is ended or its scenario/campaign contact budget is exhausted.")
         preferred = "email" if constraints.get("email_requested") else constraints.get("preferred_channel")
-        if preferred and (kind != "message" or channel != preferred):
+        # Once the preferred channel has been tried and ignored, allow switching (channel_unlocked),
+        # so the agent can try a short conversation instead of looping on the same dead email thread.
+        if preferred and not state.get("channel_unlocked") and (kind != "message" or channel != preferred):
             errors.append("Honor the target's requested communication channel.")
     if kind == "message" and (not isinstance(action.get("body"), str) or not action["body"].strip()):
         errors.append("A message requires a nonempty body.")
