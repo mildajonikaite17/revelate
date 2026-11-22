@@ -14,7 +14,7 @@ emails, real calls or real files are ever involved.
 
 ## 1. Verify it works (no keys, no network, nothing to install)
 
-Double-click **`VERIFY.bat`**, or in a terminal:
+Double-click **`1 - CHECK IT WORKS.bat`**, or in a terminal:
 
 ```
 py verify.py
@@ -31,7 +31,7 @@ Needs only Python 3.10+ (tested on 3.13). There is nothing to `pip install`.
 
 ## 2. See the whole thing run offline (still no keys)
 
-Double-click **`DEMO_OFFLINE.bat`**, or:
+Double-click **`2 - WATCH A DEMO.bat`**, or:
 
 ```
 py agent.py --offline --category founder
@@ -45,7 +45,7 @@ the agent choose.
 
 ## 3. Preview the gamified challenge for the pitch
 
-Double-click **`PREVIEW.bat`** (or `py preview.py`) and open
+Double-click **`SEE THE CHALLENGE PAGES.bat`** (or `py preview.py`) and open
 `previews/index.html`. You get a styled page per niche showing both rounds. These
 are for the pitch and for writing the copy - inside the simulator the agent sends
 plain, text-first versions of the same pages (revel8 said only text is scored; a
@@ -53,7 +53,7 @@ human checks styling later).
 
 ## 4. Run it live against revel8
 
-Double-click **`START_LIVE.bat`** (target julius), or:
+Double-click **`3 - RUN LIVE (needs your keys).bat`** (target julius), or:
 
 ```
 py agent.py --targets julius
@@ -63,7 +63,7 @@ py agent.py --targets all
 
 You paste the revel8 **TEAM KEY**, then your **OpenAI API key**. Both stay hidden
 and are never written to disk. For a persistent single-target run that spends the
-whole budget on one twin, use **`PERSISTENT_JULIUS.bat`** or:
+whole budget on one twin, use **`3 - RUN LIVE (needs your keys).bat`** or:
 
 ```
 py agent.py --targets julius --persistent
@@ -184,5 +184,5 @@ a `.challenge.html` preview of the pages used.
   memory; coverage-checked answers; stop review.
 - **Targeting:** niche routing from verified work context, with honest unknowns.
 - **Fair play:** simulator-only, no injection, no invented proof, honest dossier.
-- **Pitch and demo (15):** `DEMO_OFFLINE.bat` for the live flow, `previews/` for the
+- **Pitch and demo (15):** `2 - WATCH A DEMO.bat` for the live flow, `previews/` for the
   gamified interface, and `runs/*.md` for a real recorded thread.

@@ -31,8 +31,7 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
         "label": "Founder",
         "title": "Founder Signal - Company Direction Self-Review",
         "framing": ("a short, optional self-review that a few founders try before a written "
-                    "studio piece on how early companies stay aligned. It is not a benchmark, "
-                    "a league table, or a ranking of your employees."),
+                    "studio piece on how fast-growing companies stay aligned as they scale."),
         "objective": "disclosure",
         "resource_filename": "Founder_Signal_Brief.docx",
         "round1": {
@@ -355,15 +354,13 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
 
     about_html = _page_html(
         spec["title"],
-        [spec["title"] + " is " + spec["framing"],
-         "Who runs it: " + organizer + ". " + organizer_status,
-         "Contact: " + contact_name + ", " + contact_role + " (" + contact_address + ").",
-         "Status: first pilot. No confirmed participants, no past editions and no ranking of employees.",
-         "What it involves: two short rounds. Round 1 is a light reasoning activity; Round 2 is an "
-         "optional self-check about " + company + ". It takes under ten minutes and needs no work "
-         "password to read.",
-         "Your answers are used only to improve the draft resource and are not attributed to you "
-         "without permission. This is proposed pilot handling, not a certification or legal claim."],
+        [spec["title"] + " - " + spec["framing"],
+         "Two short rounds, under ten minutes in total. Round 1 is a quick set of reasoning prompts; "
+         "Round 2 is a short, tailored check on how " + company + " is set up, and you get a brief "
+         "summary back.",
+         "Run by " + contact_name + " at " + organizer + ". Any questions, just reply or write to "
+         + contact_address + ".",
+         "You only share what you are comfortable sharing, and nothing here needs a work password."],
         [])
 
     round1 = spec["round1"]

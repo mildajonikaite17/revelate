@@ -65,7 +65,9 @@ def work_profile(category="founder"):
             "seniority": "Founder", "evidenced_authority": "runs it", "professional_focus": "direction",
             "professional_language": "English", "location": "unknown", "evidenced_tools_or_processes": [],
             "work_relationships": [], "tenure_or_recent_changes": "unknown", "unknowns": [],
-            "recommended_category": category, "category_rationale": "fixture"}
+            "recommended_category": category, "category_rationale": "fixture",
+            "relevant_topics": ["company direction"], "engagement_hooks": ["a recent milestone"],
+            "suggested_opening": "Open with a specific true detail."}
 
 
 def plan(objective="disclosure"):

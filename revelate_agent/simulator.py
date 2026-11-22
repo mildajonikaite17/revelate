@@ -161,7 +161,10 @@ class SimulatedModel:
                 "professional_language": "English", "location": "unknown",
                 "evidenced_tools_or_processes": [], "work_relationships": [],
                 "tenure_or_recent_changes": "unknown", "unknowns": ["Most specifics are unknown offline."],
-                "recommended_category": self.category, "category_rationale": "Offline default / forced niche."}
+                "recommended_category": self.category, "category_rationale": "Offline default / forced niche.",
+                "relevant_topics": ["company direction", "team alignment"],
+                "engagement_hooks": ["their current top priority this quarter", "a recent public milestone"],
+                "suggested_opening": "Open with a specific, true detail about their recent public work."}
 
     def plan(self, context):
         self._tick()

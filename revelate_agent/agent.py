@@ -30,6 +30,30 @@ class AgentError(Exception):
     pass
 
 
+GENERAL_PLAYBOOK = ("No special practice notes for this target. Lead entirely with the research: their "
+    "actual role, recent public work and the profile's engagement_hooks. Use the niche the profile "
+    "recommends and open with the single most relevant, specific hook - never a generic 'selected "
+    "leaders' or 'benchmark' line.")
+
+# Starting hypotheses for the three practice twins, consistent with the team's selection guide.
+# They are confirmed or overridden by the live research, never treated as verified facts.
+TARGET_PLAYBOOKS = {
+    "julius": ("Practice note (starting hypothesis - confirm with research): a go-to-market / business "
+        "founder at a security-awareness company. His twin has engaged most on employee-facing AI "
+        "impersonation, reporting suspicious requests, and how organisations turn security reports into "
+        "action - a specific, relevant discussion of that space beats any generic benchmark. Lead with "
+        "his real product, market and recent public work; a short live_chat or a concrete founder-to-peer "
+        "question can open the door."),
+    "tom": ("Practice note (starting hypothesis - confirm with research): a product-oriented founder. He "
+        "responds to concrete product and process topics - how teams design assessments, scope work and "
+        "hand things over - not a prestige benchmark. Lead with his product and one specific, useful "
+        "question in that area."),
+    "robert": ("Practice note (starting hypothesis - confirm with research): a technical founder / CTO. He "
+        "responds to concrete engineering topics - systems design, integration, reliability - and dislikes "
+        "vague marketing. Lead with his stack and a specific technical angle; keep every claim precise."),
+}
+
+
 def merge_events(existing, incoming):
     """Refreshing server events must not double-count a previously observed action."""
     result, seen = [], set()
@@ -73,6 +97,7 @@ class AgentRunner:
             "version": 10, "status": "initializing", "created_at": now(),
             "scenario_id": "practice", "target": copy.deepcopy(target),
             "category": None, "category_override": category_override,
+            "practice_playbook": TARGET_PLAYBOOKS.get((target or {}).get("id", ""), GENERAL_PLAYBOOK),
             "session": None, "profile": None, "work_profile": None,
             "challenge": None, "plan": None, "objective": None,
             "campaign": copy.deepcopy(self.campaign), "model_calls": 0,
@@ -107,6 +132,7 @@ class AgentRunner:
 
     # ---- setup phases --------------------------------------------------------
     def initialize(self):
+        self.state.setdefault("practice_playbook", TARGET_PLAYBOOKS.get(self.state["target"].get("id", ""), GENERAL_PLAYBOOK))
         if not self.state.get("profile"):
             self.log("Researching public professional context...")
             self.state["profile"] = self.model_call("research", self.state["target"], self.campaign.get("team_brief", ""))
@@ -141,6 +167,7 @@ class AgentRunner:
             plan = self.model_call("plan", {
                 "target": self.state["target"], "work_profile": self.state["work_profile"],
                 "research": self.state["profile"], "category": self.state["category"],
+                "practice_playbook": self.state.get("practice_playbook", GENERAL_PLAYBOOK),
                 "challenge": {"title": self.state["challenge"]["project_name"],
                               "framing": self.state["challenge"]["framing"],
                               "rounds": {k: {"purpose": v.get("purpose"), "intro": v.get("intro")}
