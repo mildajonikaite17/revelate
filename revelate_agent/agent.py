@@ -54,14 +54,15 @@ TARGET_PLAYBOOKS = {
         "concretely and confidently with the roundtable and its host - not a deflating 'just a pilot'. Back "
         "the invitation with the concrete founder roundtable event, not a vague review."),
     "tom": ("Practice note (confirmed in live practice): a product-focused founder who replies in ENGLISH, is "
-        "markedly guarded, invokes customer confidentiality and vets HARD. He will NOT share client-specific edge "
-        "cases, and a peer-group pitch triggers 'who else is attending / who has attended' - which has no honest "
-        "answer. So his scenario is a SOLO benchmark he completes himself on the page (no peer group, no fixed date, "
-        "nothing shared with anyone), and THE GOAL IS TO GET HIM TO COMPLETE IT - open the link and submit a round - "
-        "not a conversation. Open in English; give the credible host and the benchmark link EARLY (he checks before "
-        "he acts); make it concrete, valuable and solo: 'see how your security-awareness GTM compares, get a tailored "
-        "summary, a few minutes, just you'. Never ask for customer specifics and never invent names or references. "
-        "If he stalls on trust, lower the friction - don't raise the ask."),
+        "markedly guarded, invokes customer confidentiality and vets HARD. His scenario is a SOLO, private benchmark "
+        "he completes on the page himself, and THE GOAL IS TO GET HIM TO OPEN THE LINK AND SUBMIT A ROUND - the "
+        "action, not a conversation. It asks only for his OPINIONS on where the market is heading (over-rated "
+        "metrics, deepfake/vishing readiness, founder-led vs rep-led) - NOTHING about his company, customers or "
+        "numbers - and the exact Part 2 questions are printed on the page, so point him straight to them to defuse "
+        "his 'what would Round 2 ask about revel8?' worry. Open in English; give the host and the benchmark link "
+        "EARLY (he vets before he acts); stress it's solo, private, a few minutes, your-views-only, and you get a "
+        "read-out. Never invent names or references, and when he hesitates lower the friction (point him at the "
+        "printed questions, shrink the ask) - don't push."),
     "robert": ("Practice note (starting hypothesis - confirm with research): a technical founder / CTO. He "
         "responds to concrete engineering topics - systems design, integration, reliability - and dislikes "
         "vague marketing. Lead with his stack and a specific technical angle; keep every claim precise."),

@@ -382,19 +382,28 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     spec = CATEGORY_SPECS.get(category) or CATEGORY_SPECS["individual_contributor"]
     if category == "founder" and variant == "assessment":
         spec = {k: v for k, v in spec.items() if k != "event"}
-        spec = {**spec,
+        spec = {**spec, "assessment": True,
                 "title": "Founder Security-GTM Benchmark",
-                "framing": ("a short, solo benchmark a few product founders run to see how their "
-                            "security-awareness go-to-market compares - you complete it yourself in a few "
-                            "minutes and get a tailored summary back, nothing shared with anyone else."),
+                "framing": ("a short, private self-benchmark you run on your own in a few minutes: a handful of "
+                            "quick opinion questions about where security-awareness go-to-market is heading, and a "
+                            "tailored read-out of where your thinking sits versus the field. It asks for your views, "
+                            "not anything about your own company, customers or numbers - and it's just you, there's "
+                            "no group."),
                 "objective": (objective or "action"),
                 "resource_filename": "Founder_SecurityGTM_Benchmark.docx"}
         spec["round1"] = {**CATEGORY_SPECS["founder"]["round1"],
-                          "name": "Part 1 - Quick reasoning (about 2 minutes)",
-                          "intro": "A couple of quick prompts to calibrate the benchmark - no trick answers."}
-        spec["round2"] = {**CATEGORY_SPECS["founder"]["round2"],
-                          "name": "Part 2 - Your go-to-market (about 3 minutes)",
-                          "intro": "A short self-benchmark on how your go-to-market runs today. Only you see this; you get a tailored summary back."}
+                          "name": "Part 1 - Quick warm-up (about 2 minutes)",
+                          "intro": "A couple of quick reasoning prompts to calibrate the benchmark - no trick answers."}
+        spec["round2"] = {
+            "name": "Part 2 - Your take on the field (about 3 minutes)",
+            "intro": "Your opinions on where the market is going - no company data, just your view. You get a read-out of how your take compares.",
+            "items": [
+                ("q_metric", "What's the most over-rated metric in security-awareness training today, and what should replace it?"),
+                ("q_trend", "Where is security-awareness go-to-market heading over the next two years?"),
+                ("q_motion", "Founder-led versus rep-led GTM: at what point does founder-led selling stop scaling?"),
+                ("q_deepfake", "What's the one thing most companies still get wrong about deepfake and vishing readiness?"),
+                ("q_buyer", "If you could change one buyer behaviour in this market, what would it be and why?"),
+            ]}
     settings = settings or {}
     base = "https://" + domain
     person = _slug(target.get("id") or target.get("name") or "guest")
@@ -417,12 +426,18 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     event = spec.get("event")
     slot = proposed_slot()
     host_first = contact_name.split(" ")[0]
-    host_bio = (contact_name + " facilitates the " + (event["name"] if event else spec["title"]) + "; " + host_first
-                + " has convened invite-only founder peer groups across the DACH region and runs each session as a "
-                "neutral moderator, not a vendor.")
-    northbridge_about = (organizer + " is a small independent studio that convenes invite-only founder peer "
-                         "roundtables. It does not publish, record, sell or recruit; its only output is the private "
-                         "discussion itself.")
+    if spec.get("assessment"):
+        host_bio = (contact_name + " runs the " + spec["title"] + "; " + host_first + " has worked with founders "
+                    "across the DACH region, and every answer stays private to you.")
+        northbridge_about = (organizer + " is a small independent studio that builds private self-benchmarks for "
+                             "founders. It does not publish, sell or recruit; your answers stay with you.")
+    else:
+        host_bio = (contact_name + " facilitates the " + (event["name"] if event else spec["title"]) + "; " + host_first
+                    + " has convened invite-only founder peer groups across the DACH region and runs each session as a "
+                    "neutral moderator, not a vendor.")
+        northbridge_about = (organizer + " is a small independent studio that convenes invite-only founder peer "
+                             "roundtables. It does not publish, record, sell or recruit; its only output is the private "
+                             "discussion itself.")
     if event:
         agenda = "<ul>" + "".join("<li>" + escape(line) + "</li>" for line in event["agenda"]) + "</ul>"
         topics = "<ul>" + "".join("<li>" + escape(t) + "</li>" for t in event["topics"]) + "</ul>"
@@ -442,6 +457,24 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
             + "<h2>Themes we dig into</h2>" + topics
             + "<p>" + escape("Questions? Just reply, or write to " + contact_address + ". Under the Chatham House "
                              "Rule the attendee list stays private - that is what keeps it candid.") + "</p>"
+            + "</body></html>")
+    elif spec.get("assessment"):
+        r2 = "<ul>" + "".join("<li>" + escape(prompt) + "</li>" for _, prompt in spec["round2"]["items"]) + "</ul>"
+        about_html = ('<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;'
+            'color:#1b2538;max-width:720px;margin:auto;padding:36px;line-height:1.5">'
+            + "<h1>" + escape(spec["title"]) + "</h1>"
+            + "<p>" + escape(spec["title"] + " is " + spec["framing"]) + "</p>"
+            + "<h2>Who runs it</h2>"
+            + "<p>" + escape(northbridge_about) + "</p>"
+            + "<p>" + escape(host_bio) + "</p>"
+            + "<h2>What you get back</h2>"
+            + "<p>" + escape("A short, tailored read-out of where your thinking sits versus the field - for your eyes "
+                             "only. Nothing is published, shared or attributed, and there is no group.") + "</p>"
+            + "<h2>What it asks - the exact Part 2 questions</h2>"
+            + "<p>" + escape("Just your views on the market. No questions about your company, your customers or your "
+                             "numbers:") + "</p>" + r2
+            + "<p>" + escape("A few minutes, solo, no scheduling. Questions? Just reply, or write to "
+                             + contact_address + ".") + "</p>"
             + "</body></html>")
     else:
         about_html = _page_html(
@@ -544,6 +577,21 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
         dossier["preview"] = (event["name"] + ": " + spec["framing"] + " Proposed next session: " + slot["text_en"]
             + ". Two short prep questions tee up the discussion.")
         dossier["rounds"]["about"]["title"] = event["name"]
+    elif spec.get("assessment"):
+        dossier["who_is_behind"] = northbridge_about + " " + host_bio
+        dossier["how_selected"] = ("No mutual introduction and no referral - I reached out because of your public "
+            "writing and talks on security-awareness go-to-market. It is curated outreach, nothing more.")
+        dossier["round2_content"] = ("Part 2 is a handful of quick opinion questions about where the market is "
+            "heading - your views only, nothing about your company, customers or numbers: "
+            + "; ".join(prompt for _, prompt in spec["round2"]["items"]))
+        dossier["answer_if_asked_for_names"] = ("It is a private, solo benchmark - there is no group and no attendee "
+            "list, so there are no names to share. The host is me, " + contact_name + ", and the page is real; your "
+            "answers stay with you.")
+        dossier["participant_status"] = ("A private, solo self-benchmark. No group, no attendee list, nothing shared "
+            "or attributed; the host is named and the about page is real.")
+        dossier["ranking"] = "No ranking against other people; the read-out places your views within the field's range."
+        dossier["preview"] = spec["title"] + ": " + spec["framing"]
+        dossier["rounds"]["about"]["title"] = spec["title"]
     return dossier
 
 
@@ -560,7 +608,7 @@ def dossier_faq(challenge: "dict[str, Any]") -> "dict[str, str]":
     """The honest answers the agent must use for the common objections."""
     keys = ("organizer", "organizer_status", "contact_name", "contact_role", "contact_address",
             "framing", "event", "who_is_behind", "proposed_slot", "how_selected", "group_size",
-            "participant_status", "answer_if_asked_for_names", "commissioning", "ranking",
+            "round2_content", "participant_status", "answer_if_asked_for_names", "commissioning", "ranking",
             "data_requested", "login", "deadline", "preview")
     return {key: challenge[key] for key in keys if key in challenge}
 
