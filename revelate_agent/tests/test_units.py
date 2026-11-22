@@ -290,6 +290,18 @@ class KnowledgeTests(unittest.TestCase):
         self.assertEqual(s["authority"], "junior")
         self.assertFalse(s["real_time_first"])
 
+    def test_derive_persistence_rule(self):
+        guarded = {"guarded": True}
+        open_ = {"guarded": False}
+        # guarded + solo action (no event) -> persistent, raised cap
+        p = kn.derive_persistence(guarded, {"objective": "action"})
+        self.assertTrue(p["persistent"] and p["max_contacts"] == 24)
+        # guarded + peer event (roundtable) -> one pass (keeps a roundtable founder non-persistent)
+        p = kn.derive_persistence(guarded, {"event": {"name": "Roundtable"}})
+        self.assertFalse(p["persistent"])
+        # not guarded -> not persistent
+        self.assertFalse(kn.derive_persistence(open_, {"objective": "action"})["persistent"])
+
     def test_derive_approach_is_universal_and_safe(self):
         for wp in ({"seniority": "CTO", "function": "engineering", "professional_language": "German"},
                    {"seniority": "Summer intern", "function": "marketing"},

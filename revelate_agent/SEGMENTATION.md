@@ -40,6 +40,8 @@ universal approach, it never replaces it.
 - **AVOID** — Fabricated names/references/data and any near-identical repeat (reads as scam or spam). Confidential profiles: never their internals/customers/secrets.
 - **PERSIST** — If an angle stalls, switch to **genuinely new value** on their channel; never repeat an ask in new words; stop cleanly rather than fabricate or spam.
 
+**Whether to persist at all is also derived** (`derive_persistence(segment, challenge)`): a **guarded** target being driven toward a **solo action** declines the first framing and needs adaptive, multi-contact follow-up → persist (contact cap 24). A guarded target invited to a **peer event** (a roundtable) converts through the relationship in one warm pass → don't hammer them (default cap). Non-guarded people aren't hammered either. This is why a roundtable founder (Julius) stays one-pass while a solo-action target (Tom, Robert) persists — on principle, with no per-target setting. An explicit `--persistent` still wins as a floor.
+
 ---
 
 ## Worked examples (the three twins are just instances)

@@ -169,6 +169,22 @@ def derive_approach(work_profile: "dict[str, Any]") -> str:
     return "\n".join(lines)
 
 
+def derive_persistence(segment: "dict[str, Any]", challenge: "dict[str, Any]") -> "dict[str, Any]":
+    """Decide persistence from the segment + challenge - universally, not per-target.
+
+    A GUARDED target being driven toward a SOLO action declines the first framing and needs
+    adaptive, multi-contact follow-up, so persist and raise the contact cap. A guarded target
+    invited to a PEER EVENT (a roundtable) converts through the relationship in a single warm
+    conversation - persisting there only risks over-contacting a warm lead - so one pass at the
+    default cap. Non-guarded people are not hammered either. This keeps a roundtable founder
+    (e.g. Julius) non-persistent and a solo-action target (Tom, Robert) persistent, on principle."""
+    guarded = bool((segment or {}).get("guarded"))
+    is_event = bool((challenge or {}).get("event"))
+    if guarded and not is_event:
+        return {"persistent": True, "max_contacts": 24}
+    return {"persistent": False, "max_contacts": None}
+
+
 # ---- question tracking -------------------------------------------------------
 
 def question_id(quote: str) -> str:

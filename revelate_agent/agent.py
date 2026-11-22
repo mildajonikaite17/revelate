@@ -22,7 +22,7 @@ from models import ModelError
 from policy import validate_action, compute_metrics, _is_sensitive_field
 from protocol import TargetAPI, APIError, RunStore, now
 from knowledge import (normalized, categorize, derive_approach, segment_profile,
-                       add_questions, engagement_update, task_kind, coverage_failures)
+                       derive_persistence, add_questions, engagement_update, task_kind, coverage_failures)
 from challenge import build_challenge, challenge_page, dossier_faq, render_preview_html
 
 
@@ -106,10 +106,11 @@ TARGET_CHALLENGE_VARIANT = {"tom": "assessment"}
 # listed here keeps the campaign defaults - Julius stays non-persistent with the cap-8
 # budget, so his locked outcome is untouched. An explicit --persistent / --max-contacts
 # on the CLI still wins (these values are treated as a floor, never a ceiling).
-TARGET_RUN_PROFILE = {
-    "tom": {"persistent": True, "max_contacts": 24},
-    "robert": {"persistent": True, "max_contacts": 24},
-}
+# Per-target run profile. Normally empty: persistence is now derived from the segment +
+# challenge in knowledge.derive_persistence() (a guarded target driven toward a solo action
+# persists; a guarded target invited to a peer event stays one-pass). Kept as a general
+# escape hatch; an explicit --persistent / --max-contacts still wins as a floor.
+TARGET_RUN_PROFILE: "dict[str, dict]" = {}
 
 # Per-target niche override. Normally empty: categorize() is now domain-aware, so a
 # technical founder (Robert) routes to the engineering niche universally - no per-target
@@ -178,13 +179,8 @@ class AgentRunner:
             "operations": [], "rejected_drafts": [], "stop_reviews": [], "last_errors": [],
             "objective_evidence": None, "channel_unlocked": False,
         }
-        prof = TARGET_RUN_PROFILE.get((target or {}).get("id", ""), {})
-        if prof.get("persistent"):
-            self.state["persistent"] = True
-        if prof.get("max_contacts"):
-            cap = max(int(self.state["contact_cap"]), int(prof["max_contacts"]))
-            self.state["contact_cap"] = cap
-            self.state["campaign"]["max_contacts"] = cap
+        # Persistence is derived from the segment + challenge in initialize(), not here -
+        # the baseline carries any explicit CLI --persistent / --max-contacts as a floor.
         self.save()
 
     def restore(self):
@@ -254,6 +250,23 @@ class AgentRunner:
             self.campaign["sender"] = {"name": challenge["contact_name"], "address": challenge["contact_address"]}
             self.campaign["approved_senders"] = [dict(self.campaign["sender"])]
             self.state["campaign"] = copy.deepcopy(self.campaign)
+            # Universal persistence: derived from the segment + this challenge, not per-target.
+            pers = derive_persistence(self.state.get("segment", {}), challenge)
+            prof = TARGET_RUN_PROFILE.get(self.state["target"].get("id", ""), {})  # escape hatch, normally empty
+            persistent = bool(pers["persistent"]) or bool(prof.get("persistent")) or bool(self.state.get("persistent"))
+            caps = [int(self.state["contact_cap"])]
+            if pers.get("max_contacts"):
+                caps.append(int(pers["max_contacts"]))
+            if prof.get("max_contacts"):
+                caps.append(int(prof["max_contacts"]))
+            cap = max(caps) if persistent else int(self.state["contact_cap"])
+            self.state["persistent"] = persistent
+            self.state["contact_cap"] = cap
+            self.state["campaign"]["max_contacts"] = cap
+            why = ("guarded, solo action" if (persistent and not challenge.get("event"))
+                   else "peer event - one warm pass" if challenge.get("event")
+                   else "not vet-first" if not persistent else "forced")
+            self.log("Persistence: " + ("on" if persistent else "off") + " | cap " + str(cap) + " | " + why)
             self.save()
         if not self.state.get("plan"):
             self.log("Comparing three approaches against the evidence...")
@@ -841,13 +854,8 @@ def main(argv=None):
         store = RunStore(path, secrets=(team_key, openai_key))
         effective = store.load()["campaign"] if args.resume else campaign
         _, model, model_name = _make_clients(args, effective, team_key, openai_key)
-        prof = TARGET_RUN_PROFILE.get((selected[index] if not args.resume else ""), {})
-        eff_persistent = bool(effective.get("persistent")) or bool(prof.get("persistent"))
-        eff_cap = effective.get("max_contacts")
-        if prof.get("max_contacts"):
-            eff_cap = max(int(eff_cap or 0), int(prof["max_contacts"]))
         print("Target:", (selected[index] if not args.resume else "resumed"), "| model:", model_name,
-              "| persistent:", eff_persistent, "| contact cap:", eff_cap)
+              "| persistence: derived from the profile (see the Persistence line below)")
         runner = AgentRunner(api, model, effective, store)
         result = runner.run(target=None if args.resume else targets[selected[index]],
                             resume=bool(args.resume), recovered_session_id=args.session_id,
