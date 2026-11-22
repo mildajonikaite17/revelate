@@ -286,6 +286,14 @@ class AgentRunner:
     def enrich(self, decision):
         decision = dict(decision)
         decision.setdefault("attachments", [])
+        # The model sometimes puts free-text descriptions in evidence_ids /
+        # addresses_requirements instead of real IDs. Those are advisory bookkeeping,
+        # not a safety gate, so drop unknown ones rather than let them block a message
+        # (which otherwise loops until the revision budget is spent and the thread dies).
+        known_evidence = {e.get("id") for e in self.state.get("evidence", []) if isinstance(e, dict)}
+        known_requirements = {r.get("id") for r in self.state.get("requirements", []) if isinstance(r, dict)}
+        decision["evidence_ids"] = [i for i in decision.get("evidence_ids", []) if i in known_evidence]
+        decision["addresses_requirements"] = [i for i in decision.get("addresses_requirements", []) if i in known_requirements]
         challenge = self.state["challenge"]
         rounds = challenge["rounds"]
         if decision["action"] in ("message", "start_call", "say"):
