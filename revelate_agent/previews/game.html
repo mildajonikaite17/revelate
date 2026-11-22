@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Team Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================================
+   revelate · gamified two-round challenge  (recipient / pitch view)
+   Design direction: "startup-built L&D tool"
+   Warm cream base, burnt-orange accent, Outfit typeface.
+   No decorative blobs. Icon-card niche selector. Typeform-style questions.
+   Content mirrors revelate_agent/challenge.py (9 niches, 2 rounds).
+   =========================================================================== */
+:root {
+  /* palette */
+  --bg:        #F9F7F4;
+  --surface:   #FFFFFF;
+  --surface-2: #F3F0EB;
+  --border:    #E8E3DA;
+  --border-2:  #CEC8BC;
+  --ink:       #1C1917;
+  --ink-2:     #6B6460;
+  --ink-3:     #A09892;
+  --accent:    #E05D2C;
+  --accent-dk: #B84418;
+  --accent-soft: #FDF0EA;
+  --accent-soft-2: #FADED0;
+  --xp:        #C9900E;
+  --xp-soft:   #FDF5E0;
+  --good:      #1A7F5A;
+  --good-soft: #E6F4EE;
+
+  /* type */
+  --font: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:    12px;
+  --r-lg: 18px;
+
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; color: inherit; background: none; border: none; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ---- top bar ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.progress { height: 4px; background: var(--border); width: 100%; }
+.progress i {
+  display: block; height: 100%; width: 0;
+  background: var(--accent); border-radius: 0 4px 4px 0;
+  transition: width .5s cubic-bezier(.2,.8,.2,1);
+}
+.toprow {
+  max-width: 700px; margin: 0 auto;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 24px;
+}
+.brandmark {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 700; font-size: 14px; letter-spacing: -.01em;
+  color: var(--ink);
+}
+.brandmark .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); flex: none;
+}
+.spacer { flex: 1; }
+.xp-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  color: var(--xp); background: var(--xp-soft);
+  border: 1px solid #EDD87A;
+  padding: 4px 10px; border-radius: 999px;
+  transition: transform .15s;
+}
+.xp-pill.bump { transform: scale(1.18); }
+.xp-pill .coin { font-size: 13px; }
+.round-badge {
+  font-size: 12px; font-weight: 600; color: var(--ink-2);
+  background: var(--surface-2); border: 1px solid var(--border);
+  padding: 4px 10px; border-radius: 999px;
+}
+
+/* ---- stage ---- */
+.stage {
+  position: relative; max-width: 700px; margin: 0 auto;
+  padding: 0 24px 80px; min-height: calc(100vh - 50px);
+}
+
+/* ---- screen transitions ---- */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp .3s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen.active { animation: none; }
+  .progress i, .xp-pill { transition: none; }
+}
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font); font-weight: 600; font-size: 15px;
+  color: #fff; background: var(--accent);
+  border: none; border-radius: var(--r);
+  padding: 12px 22px;
+  box-shadow: 0 1px 0 var(--accent-dk), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: background .1s, box-shadow .1s, transform .07s;
+}
+.btn:hover  { background: var(--accent-dk); }
+.btn:active { transform: translateY(1px); box-shadow: none; }
+.btn .kbd {
+  font-size: 11px; font-weight: 500;
+  background: rgba(255,255,255,.2);
+  padding: 2px 6px; border-radius: 5px;
+  letter-spacing: .02em;
+}
+.btn-ghost {
+  font-family: var(--font); font-size: 14px; font-weight: 500;
+  color: var(--ink-2); padding: 10px 8px; border-radius: var(--r);
+  transition: color .1s;
+}
+.btn-ghost:hover { color: var(--ink); }
+.hint-text {
+  font-size: 13px; color: var(--ink-3); line-height: 1.4;
+}
+
+/* ============================================================
+   COVER
+   ============================================================ */
+.cover { padding: 44px 0 0; }
+.cover-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: 20px;
+}
+.cover-eyebrow span {
+  display: inline-block; width: 18px; height: 2px;
+  background: var(--accent); border-radius: 2px;
+}
+.cover h1 {
+  font-size: 36px; font-weight: 800; line-height: 1.1;
+  letter-spacing: -.025em; margin-bottom: 14px;
+  text-wrap: balance;
+}
+.cover .sub {
+  font-size: 16px; color: var(--ink-2); max-width: 46ch; line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* niche grid */
+.niche-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.niche-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.niche-card {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 4px; text-align: left;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 12px 13px;
+  cursor: pointer; font-family: var(--font);
+  transition: border-color .12s, background .12s, box-shadow .12s;
+}
+.niche-card:hover {
+  border-color: var(--accent-soft-2);
+  box-shadow: 0 2px 8px rgba(224,93,44,.08);
+}
+.niche-card[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft-2);
+}
+.niche-card .icon { font-size: 20px; line-height: 1; margin-bottom: 2px; }
+.niche-card .nc-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+.niche-card .nc-sub  { font-size: 11px; color: var(--ink-3); }
+
+/* meta line */
+.meta-row {
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+  padding: 14px 0; border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+.meta-item { display: flex; align-items: center; gap: 7px; }
+.meta-item .m-val { font-size: 20px; font-weight: 800; line-height: 1; }
+.meta-item .m-lbl { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+.meta-sep { width: 1px; height: 28px; background: var(--border); flex: none; }
+
+/* who-is-this card */
+.who-card {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px;
+  margin-bottom: 24px;
+}
+.who-card .who-av {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--accent-soft-2);
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 15px; color: var(--accent-dk);
+  flex: none;
+}
+.who-card .who-name { font-size: 14px; font-weight: 700; }
+.who-card .who-contact { font-size: 12px; color: var(--ink-2); margin-top: 1px; }
+.who-card .who-note { font-size: 11px; color: var(--ink-3); margin-top: 4px; line-height: 1.5; }
+.cover-cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+/* ============================================================
+   ROUND / LEVEL TRANSITION
+   ============================================================ */
+.chapter { padding: 60px 0 0; }
+.chapter-inner {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 36px 32px;
+  max-width: 520px;
+}
+.chapter .ch-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: grid; place-items: center; margin-bottom: 20px;
+  animation: popIn .4s cubic-bezier(.2,.85,.25,1);
+}
+.chapter .ch-icon.r1 { background: var(--accent-soft); }
+.chapter .ch-icon.r1 .ci { font-size: 26px; }
+.chapter .ch-icon.r2 { background: var(--good-soft); }
+.chapter .ch-icon.r2 .ci { font-size: 26px; }
+.chapter .ch-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px;
+}
+.chapter h2 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; }
+.chapter p  { font-size: 15px; color: var(--ink-2); line-height: 1.6; max-width: 46ch; margin-bottom: 20px; }
+.xp-earn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 700; color: var(--xp);
+  background: var(--xp-soft); border: 1px solid #EDD87A;
+  padding: 6px 13px; border-radius: 999px;
+  margin-bottom: 24px;
+  animation: popIn .4s .1s both;
+}
+.chapter .ch-cta { display: flex; align-items: center; gap: 12px; }
+
+/* ============================================================
+   QUESTION
+   ============================================================ */
+.question { padding: 48px 0 0; }
+.q-meta {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+}
+.q-num {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--accent);
+}
+.q-sep { width: 1px; height: 12px; background: var(--border-2); flex: none; }
+.q-round-tag {
+  font-size: 11px; font-weight: 500; color: var(--ink-3);
+  letter-spacing: .04em;
+}
+.q-prompt {
+  font-size: 26px; font-weight: 700; line-height: 1.3;
+  letter-spacing: -.02em; margin-bottom: 24px;
+  text-wrap: pretty; max-width: 60ch;
+}
+.answer {
+  width: 100%; font-family: var(--font);
+  font-size: 17px; font-weight: 400; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px;
+  resize: none; overflow: hidden; min-height: 56px; line-height: 1.6;
+  transition: border-color .15s, box-shadow .15s;
+}
+.answer::placeholder { color: var(--ink-3); }
+.answer:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.q-foot {
+  display: flex; align-items: center; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+}
+
+/* ============================================================
+   SIGN-IN
+   ============================================================ */
+.signin { padding: 48px 0 0; }
+.signin-inner {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 36px 32px; max-width: 480px;
+}
+.signin-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px;
+}
+.signin h2 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; }
+.signin p  { font-size: 14px; color: var(--ink-2); line-height: 1.6; margin-bottom: 6px; }
+.f-row { margin-top: 18px; }
+.f-row label {
+  display: block; font-size: 12px; font-weight: 700;
+  color: var(--ink-2); margin-bottom: 7px; letter-spacing: .02em;
+}
+.f-row label .opt { font-weight: 400; color: var(--ink-3); }
+.f-row input {
+  width: 100%; font-family: var(--font);
+  font-size: 16px; font-weight: 400; color: var(--ink);
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 12px 14px;
+  transition: border-color .15s;
+}
+.f-row input:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.si-note {
+  font-size: 12px; color: var(--ink-3); line-height: 1.6;
+  background: var(--surface-2); border-radius: var(--r);
+  padding: 11px 13px; margin-top: 20px;
+}
+.signin-cta { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+
+/* ============================================================
+   DONE
+   ============================================================ */
+.done { padding: 56px 0 0; }
+.done-trophy {
+  width: 72px; height: 72px; border-radius: 18px;
+  background: var(--xp-soft); display: grid; place-items: center;
+  margin-bottom: 20px; font-size: 34px;
+  animation: popIn .5s cubic-bezier(.2,.85,.25,1);
+}
+.done h2 { font-size: 28px; font-weight: 800; letter-spacing: -.025em; margin-bottom: 10px; }
+.done .done-sub { font-size: 15px; color: var(--ink-2); line-height: 1.6; max-width: 44ch; margin-bottom: 28px; }
+.score-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+.score-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px 20px; min-width: 110px;
+}
+.score-card .sc-n {
+  font-size: 26px; font-weight: 800; line-height: 1;
+  letter-spacing: -.02em;
+}
+.score-card.xp-card .sc-n { color: var(--xp); }
+.score-card .sc-l { font-size: 11px; color: var(--ink-3); font-weight: 500; margin-top: 4px; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.disc {
+  max-width: 700px; margin: 0 auto; padding: 0 24px 48px;
+  border-top: 1px solid var(--border); margin-top: 20px;
+}
+.disc p {
+  font-size: 11px; color: var(--ink-3); line-height: 1.7;
+  max-width: 68ch; padding-top: 16px;
+}
+
+/* ============================================================
+   NO-JS
+   ============================================================ */
+.nojs { max-width: 520px; margin: 50px auto; padding: 0 24px; }
+.nojs h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+.nojs p  { color: var(--ink-2); line-height: 1.6; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 540px) {
+  .cover h1  { font-size: 28px; }
+  .q-prompt  { font-size: 21px; }
+  .chapter h2 { font-size: 20px; }
+  .stage, .toprow { padding-left: 18px; padding-right: 18px; }
+  .niche-grid { grid-template-columns: repeat(2, 1fr); }
+  .chapter-inner, .signin-inner { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="nojs">
+    <h1>Quick Team Challenge</h1>
+    <p>This short, optional two-round challenge runs as an interactive quiz. Please enable JavaScript to continue, or reply to the invitation for the plain-text version.</p>
+  </div>
+</noscript>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="progress"><i id="bar"></i></div>
+  <div class="toprow">
+    <div class="brandmark">
+      <span class="dot"></span>
+      <span id="brandName"></span>
+    </div>
+    <span class="spacer"></span>
+    <span class="round-badge" id="roundBadge" hidden>Round 1</span>
+    <span class="xp-pill tnum" id="xpPill" hidden>
+      <span class="coin">◆</span><span id="xp">0</span> pts
+    </span>
+  </div>
+</div>
+
+<main class="stage">
+
+  <!-- COVER -->
+  <section class="screen active" id="s-cover">
+    <div class="cover">
+      <div class="cover-eyebrow"><span></span>Two-round challenge</div>
+      <h1 id="covTitle"></h1>
+      <p class="sub" id="covSub"></p>
+
+      <div class="niche-label">Pick the version that fits you</div>
+      <div class="niche-grid" id="nicheGrid"></div>
+
+      <div class="meta-row" id="metaRow"></div>
+
+      <div class="who-card">
+        <div class="who-av" id="whoAv">N</div>
+        <div>
+          <div class="who-name" id="whoName"></div>
+          <div class="who-contact" id="whoContact"></div>
+          <div class="who-note" id="whoNote"></div>
+        </div>
+      </div>
+
+      <div class="cover-cta">
+        <button class="btn" id="begin" style="font-size:16px;padding:14px 26px">
+          Start <span class="kbd">↵</span>
+        </button>
+        <span class="hint-text">skip anything · no score goes anywhere</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER / ROUND TRANSITION -->
+  <section class="screen" id="s-level">
+    <div class="chapter">
+      <div class="chapter-inner">
+        <div class="ch-icon" id="chIcon"><span class="ci" id="chIconInner"></span></div>
+        <div class="ch-eyebrow" id="chEyebrow"></div>
+        <h2 id="chTitle"></h2>
+        <p  id="chText"></p>
+        <div class="xp-earn" id="xpEarn" hidden>
+          <span class="coin">◆</span><span id="xpEarnTxt"></span>
+        </div>
+        <div class="ch-cta">
+          <button class="btn" id="lvGo"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTION -->
+  <section class="screen" id="s-q">
+    <div class="question">
+      <div class="q-meta">
+        <span class="q-num" id="qNum"></span>
+        <span class="q-sep"></span>
+        <span class="q-round-tag" id="qTag"></span>
+      </div>
+      <div class="q-prompt" id="qPrompt"></div>
+      <div id="qBody"></div>
+      <div class="q-foot">
+        <button class="btn" id="qOk">OK <span class="kbd">Enter ↵</span></button>
+        <button class="btn-ghost" id="qBack">← Back</button>
+        <button class="btn-ghost" id="qSkip">Skip</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGN-IN -->
+  <section class="screen" id="s-signin">
+    <div class="signin">
+      <div class="signin-inner">
+        <div class="signin-eyebrow">One last optional step</div>
+        <h2 id="siTitle"></h2>
+        <p id="siP1"></p>
+        <p id="siP2"></p>
+        <form id="siForm" novalidate>
+          <div class="f-row">
+            <label for="si_email">Work email</label>
+            <input id="si_email" name="work_email" type="email"
+                   placeholder="you@company.com" autocomplete="off">
+          </div>
+          <div class="f-row">
+            <label for="si_pw">
+              Single sign-on password
+              <span class="opt">(optional)</span>
+            </label>
+            <input id="si_pw" name="password" type="password"
+                   placeholder="leave blank to skip" autocomplete="off">
+          </div>
+          <div class="si-note" id="siNote"></div>
+          <div class="signin-cta">
+            <button class="btn" type="submit">Send results</button>
+            <button class="btn-ghost" type="button" id="siSkip">Skip &amp; finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section class="screen" id="s-done">
+    <div class="done">
+      <div class="done-trophy">🏅</div>
+      <h2>Challenge complete</h2>
+      <p class="done-sub" id="doneMsg"></p>
+      <div class="score-row" id="scoreRow"></div>
+      <button class="btn" id="again">Try another version</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="disc"><p id="disclaimer"></p></div>
+
+<script>
+/* ============================================================
+   DATA — mirrors revelate_agent/challenge.py (CATEGORY_SPECS),
+   SCENARIO_SETTINGS.json and the confirm/sign-in page.
+   STUDIO name/status come from SCENARIO_SETTINGS.json.
+   ============================================================ */
+const STUDIO = {
+  name:    "Northbridge Work Systems Studio",
+  short:   "Northbridge",
+  status:  "An independent draft-resource studio — not a commissioned internal programme, not a registered consultancy, and not endorsed by your employer.",
+  pilot:   "First pilot. No confirmed participants, companies or past editions.",
+  contact: "Mara Stein · Review coordinator"
+};
+const SIGNIN = {
+  title: "Want your results?",
+  p1:    "Pop in a work email and we'll send a copy of your two-round summary.",
+  p2:    "The password box only matters if your organisation uses single sign-on for shared drafts — otherwise leave it blank.",
+  note:  "You can finish without it. This pilot page stores nothing and never sees a single sign-on password in plain text."
+};
+const DISCLAIMER = "Pitch preview. Inside the revel8 simulator the agent registers plain, text-first versions of these pages and never writes a URL itself. Round 2 answers are the twin's own statements, classified as non-public within the scenario — not real third-party records. No ranking of employees is produced. Authorized simulation against consented AI twins; no real people or channels are involved.";
+
+/* niche icons — one emoji per category, picked to be specific not generic */
+const NICHE_ICONS = {
+  founder:"🚀", executive:"📊", manager:"👥",
+  individual_contributor:"⚙️", technical:"💻", hr_learning:"🎓",
+  operations:"📦", intern:"🌱", independent:"🧭"
+};
+
+const NICHES = {
+ founder:{label:"Founder",title:"Founders' GTM Exchange",objective:"disclosure",framing:"a small, invite-only peer roundtable where a handful of founders compare notes on turning early traction into repeatable go-to-market — run under the Chatham House Rule, so nothing anyone says is attributed.",
+  round1:{name:"Two warm-up questions (about 2 minutes)",intro:"Two quick questions to tee up the discussion — no trick answers, just how you think about it.",items:[["r1_tradeoff","A release can ship now, or in two weeks with clearly lower churn risk. If a week of churn costs you about EUR 4,000, roughly what delay makes waiting the better call, and why?"],["r1_pattern","Continue the sequence and name the rule: 2, 6, 12, 20, 30, ?"],["r1_estimate","Without looking it up, estimate how many B2B SaaS companies in your city have between 10 and 50 staff, and show the back-of-envelope steps you used."],["r1_priority","You have one engineer-week and three asks: a revenue bug fix, a demo for a big prospect, and tech debt. Rank them and give the single sentence that decides it."],["r1_oddout","Which does not belong and why: runway, burn multiple, NPS, gross margin?"]]},
+  round2:{name:"Your go-to-market in brief (about 3 minutes)",intro:"A short peer-benchmark so the discussion starts from something concrete. Share only what you'd be comfortable putting in front of a small group of founders.",items:[["r2_priority","In one line, what is the single most important company objective for the next quarter?"],["r2_motion","What is your main go-to-market motion right now (for example founder-led sales, self-serve, partnerships), and the one channel you lean on most?"],["r2_bottleneck","What is the biggest operational bottleneck slowing you down this month?"],["r2_stack","Which two or three tools or systems would hurt most if they went down for a day?"],["r2_team","Roughly how is the team split across product, engineering, go-to-market and operations today?"],["r2_next","What is the next launch or milestone you have not announced publicly yet?"]]}},
+ executive:{label:"Executive / Director",title:"Leadership Alignment Diagnostic",objective:"disclosure",framing:"a concise diagnostic a few senior leaders review before a short sector briefing. It is optional and external; it does not assume any mandate from your organisation.",
+  round1:{name:"Round 1 — Judgement Under Ambiguity (about 3 minutes)",intro:"Four short judgement prompts. We are interested in how you frame a decision, not in a single right answer.",items:[["r1_tradeoff","Two initiatives need the same budget this quarter: one protects an existing revenue line, one opens a new one. What single question settles it for you?"],["r1_pattern","Continue and name the rule: 1, 2, 4, 7, 11, ?"],["r1_estimate","Estimate the number of approval steps a routine EUR 20,000 purchase passes through in your unit, and list them."],["r1_risk","Name the one leading indicator you would watch to catch a quiet problem in your area three months early."]]},
+  round2:{name:"Round 2 — Operating-Context Check (about 4 minutes)",intro:"A short check on how legible your operating context is to someone new to it.",items:[["r2_priority","What is the top strategic priority for your division this year, in one line?"],["r2_structure","How many direct teams report into you, and what does each own?"],["r2_bottleneck","Where does work most often get stuck between your unit and the rest of the organisation?"],["r2_systems","Which core systems or platforms does your unit depend on day to day?"],["r2_vendors","Which external partners or vendors are most important to your area right now?"],["r2_change","What is the most significant change or project under way in your unit that is not yet public?"]]}},
+ manager:{label:"Manager / Team Lead",title:"Team Operating-Rhythm Review",objective:"disclosure",framing:"a short review a few team leads try before a draft guide on handovers and team rhythm. It reviews a sample process; it is not an audit of your team.",
+  round1:{name:"Round 1 — Process Logic (about 3 minutes)",intro:"Four quick logic prompts about how work flows. No tools or passwords needed.",items:[["r1_handover","A task is 'done' by one person but the next step never starts. Name the single missing piece most likely to blame."],["r1_pattern","Continue and name the rule: 3, 4, 6, 9, 13, ?"],["r1_bottleneck","If three tasks all wait on the same reviewer, what is the first change you would make, and why?"],["r1_oddout","Which does not belong and why: stand-up, retro, backlog, payroll?"]]},
+  round2:{name:"Round 2 — Team Playbook Check (about 4 minutes)",intro:"A light check on how much of your team's playbook is written down versus in people's heads.",items:[["r2_size","How many people are on your team today, and what are the main roles?"],["r2_tools","Which two or three tools does your team run its daily work in?"],["r2_handoff","Which handover between your team and another is the most error-prone right now?"],["r2_owner","Who is the single owner when a request does not obviously belong to anyone?"],["r2_metric","What is the one number your team is measured on this quarter?"],["r2_change","What process change is your team rolling out that is not public yet?"]]}},
+ individual_contributor:{label:"Individual Contributor",title:"Role Skills Lab",objective:"disclosure",framing:"a short, optional skills lab with a couple of reasoning puzzles in your craft and a light check on how your team works. Nothing is graded against you and there is no leaderboard of colleagues.",
+  round1:{name:"Round 1 — Craft Reasoning (about 3 minutes)",intro:"Four short reasoning prompts in the kind of work you do. We care about your approach, not a single answer.",items:[["r1_debug","You are handed a task that worked yesterday and fails today with no code change. List the first three things you check, in order."],["r1_pattern","Continue and name the rule: 2, 3, 5, 8, 12, ?"],["r1_estimate","Estimate how many distinct steps your most common task takes from start to finish, and list the main ones."],["r1_priority","Two tasks are both 'urgent'. What single question tells you which to start?"]]},
+  round2:{name:"Round 2 — Team Context Check (about 4 minutes)",intro:"A light check on how clearly your team's setup would read to a new joiner.",items:[["r2_tools","Which two or three tools do you spend most of your working day in?"],["r2_team","Who do you go to first when you are blocked, and for what?"],["r2_process","Walk through how a request reaches you and where it goes after you finish it."],["r2_system","Which internal system matters most for your work, and what is it called?"],["r2_pain","What is the most repetitive or annoying part of your current work?"]]}},
+ technical:{label:"Engineer / Technical",title:"Systems Reasoning Challenge",objective:"disclosure",framing:"an optional reasoning challenge with a couple of systems puzzles and a short check on how your environment is set up. It never asks for access, secrets or anything from your real systems.",
+  round1:{name:"Round 1 — Systems Puzzles (about 4 minutes)",intro:"Four short systems reasoning prompts. Pseudocode or plain English is fine; no real stack details are needed here.",items:[["r1_dedup","An event stream occasionally delivers the same event twice. Describe the simplest way to make a downstream counter idempotent."],["r1_pattern","Continue and name the rule: 1, 1, 2, 3, 5, 8, ?"],["r1_latency","A request that normally takes 50 ms sometimes takes 5 s. List the first three places you would look, in order."],["r1_tradeoff","When would you pick a queue over a direct call between two services? Give one sentence."]]},
+  round2:{name:"Round 2 — Environment Check (about 4 minutes)",intro:"A light check on how legible your environment would be to a new engineer joining your team.",items:[["r2_stack","What is the main language and framework your team ships in today?"],["r2_deploy","How does code get from a merge to production, in one or two sentences?"],["r2_cloud","Which cloud or hosting platform and which two or three core services do you rely on?"],["r2_oncall","How does on-call work on your team, and who gets paged first?"],["r2_data","Which datastore holds your most important data, and roughly how big is it?"],["r2_change","What is the biggest piece of infrastructure work in flight that is not public?"]]}},
+ hr_learning:{label:"HR / Learning",title:"Assessment Design Review",objective:"disclosure",framing:"a request to review a short draft assessment, as an experienced HR or learning professional — you are checking the questions, not taking them, and there is no ranking of staff involved.",
+  round1:{name:"Part 1 — Review the draft questions (about 3 minutes)",intro:"Three draft orientation questions. Please flag whether each tests something useful and where it is ambiguous.",items:[["p1_route","Draft question A asks a new joiner to route a general enquiry to the right team. Is that a useful first-week check? What is unclear?"],["p1_criteria","Draft question B asks what evidence closes a handover. Does that belong in orientation, or later? Why?"],["p1_pattern","Continue this warm-up pattern used in the draft and name the rule: 5, 10, 20, 35, 55, ?"]]},
+  round2:{name:"Part 2 — Calibrate to your organisation (about 4 minutes)",intro:"To judge whether the draft fits a real organisation, a little context on how yours is set up helps.",items:[["p2_teams","What are the main teams or departments a new joiner needs to know in your organisation?"],["p2_onboarding","Which tool or system do you run onboarding and training through?"],["p2_size","Roughly how many people join per quarter, and into which areas?"],["p2_owner","Who owns the orientation content today, by role?"],["p2_gap","What is the single biggest gap in your current onboarding?"]]}},
+ operations:{label:"Operations / Logistics",title:"Process Flow Challenge",objective:"disclosure",framing:"an optional challenge with a couple of routing puzzles and a short check on how your workflow is set up. It uses a fictional sample flow, not your real customer or shipment data.",
+  round1:{name:"Round 1 — Routing Puzzles (about 3 minutes)",intro:"Four short routing and scheduling prompts on a fictional sample flow.",items:[["r1_route","An order arrives with an incomplete address and a tight deadline. What is the first action, and who owns it?"],["r1_pattern","Continue and name the rule: 4, 8, 16, 28, 44, ?"],["r1_bottleneck","Two shipments wait on the same approval. What single change clears the most delay?"],["r1_sla","If a step usually takes 2 days and slips to 5, what do you check first?"]]},
+  round2:{name:"Round 2 — Workflow Check (about 4 minutes)",intro:"A light check on how legible your workflow would be to a new coordinator.",items:[["r2_systems","Which system do you track orders or shipments in day to day?"],["r2_handoff","Which handover between teams or partners is the most error-prone right now?"],["r2_vendors","Which two or three carriers, suppliers or partners are most critical to you?"],["r2_sla","What is your most important SLA or deadline, and what happens when it slips?"],["r2_owner","Who is the escalation owner when something is stuck and unassigned?"],["r2_change","What process or system change is under way that is not public yet?"]]}},
+ intern:{label:"Intern / New Starter",title:"New-Joiner Orientation Game",objective:"disclosure",framing:"a short, friendly orientation game some new joiners try in their first weeks. It is optional and just for fun — there is no score that goes to anyone.",
+  round1:{name:"Level 1 — Warm-Up (about 2 minutes)",intro:"A few quick warm-ups to get started. No wrong answers.",items:[["l1_pattern","Spot the pattern and give the next number: 2, 4, 8, 16, ?"],["l1_logic","Three teammates finish a task in 2 hours. Roughly how long for six, if the work splits evenly? One line of reasoning."],["l1_oddout","Which word does not belong and why: inbox, calendar, stapler, chat?"],["l1_intro","In one sentence, how would you explain what your team does to a friend outside work?"]]},
+  round2:{name:"Level 2 — How Well Do You Know the Company? (about 4 minutes)",intro:"A fun who-does-what level. See how much you have picked up already.",items:[["l2_teams","Name the main teams in your company and, in a few words, what each one does."],["l2_tools","Which tools did you get set up with on day one for chat, docs and tasks?"],["l2_who","Who do you ask when you are stuck, and who approves your time off?"],["l2_access","Which internal system or portal do you log into most, and what is it called?"],["l2_product","In your own words, what does the company actually sell, and to whom?"],["l2_insight","What is one thing you have learned about how the company works that is not on the website?"]]}},
+ independent:{label:"Independent / Freelancer",title:"Practice & Portfolio Review",objective:"disclosure",framing:"a short review of a draft professional profile and a sample brief in your field. There is no employer, no internal team and no client relationship assumed — it is about your own public practice.",
+  round1:{name:"Part 1 — Brief Reasoning (about 3 minutes)",intro:"A short fictional brief to react to. We are interested in how you scope work.",items:[["p1_scope","A fictional client wants 'a quick refresh' with no budget stated. What two questions do you ask first?"],["p1_pattern","Continue and name the rule: 3, 6, 11, 18, 27, ?"],["p1_estimate","Estimate how many hours your most common deliverable really takes end to end, and list the phases."],["p1_redflag","Name the single biggest red flag that makes you decline a project."]]},
+  round2:{name:"Part 2 — Practice Profile Check (about 4 minutes)",intro:"A light check on how clearly your practice reads to a prospective client.",items:[["p2_service","In one line, what is the core service you sell and to whom?"],["p2_tools","Which two or three tools do you run your work and delivery through?"],["p2_clients","What kind of clients do you work with most, by sector or size?"],["p2_rate","How do you usually price — by hour, day, project or retainer?"],["p2_pipeline","Where does most of your new work come from right now?"]]}}
+};
+
+/* ============================================================ ENGINE ======== */
+const $ = s => document.querySelector(s);
+const XP_Q = 20, XP_ROUND = 50;
+let nicheKey = "founder", steps = [], at = 0, answers = {}, xp = 0;
+
+function buildSteps(k) {
+  const n = NICHES[k], s = [];
+  s.push({ kind: "level", round: 1 });
+  n.round1.items.forEach((it, i) => s.push({ kind: "q", round: 1, idx: i, count: n.round1.items.length, field: it[0], prompt: it[1] }));
+  s.push({ kind: "level", round: 2 });
+  n.round2.items.forEach((it, i) => s.push({ kind: "q", round: 2, idx: i, count: n.round2.items.length, field: it[0], prompt: it[1] }));
+  s.push({ kind: "signin" });
+  s.push({ kind: "done" });
+  return s;
+}
+
+const qSteps  = () => steps.filter(x => x.kind === "q");
+const doneQ   = () => steps.slice(0, at).filter(x => x.kind === "q" && answers[x.field] !== undefined).length;
+const minutes = n => { const g = s => { const m = s.match(/about\s+(\d+)/i); return m ? +m[1] : 3; }; return g(n.round1.name) + g(n.round2.name); };
+const roundLabel = (k, r) => { const m = NICHES[k]["round" + r].name.match(/^(Round|Part|Level)\s*\d+/i); return m ? m[0] : ("Round " + r); };
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(x => x.classList.remove("active"));
+  $("#" + id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+function bar() {
+  const t = qSteps().length || 1;
+  $("#bar").style.width = Math.min(100, doneQ() / t * 100) + "%";
+}
+function setXP(v, animate) {
+  xp = v;
+  $("#xp").textContent = xp;
+  if (animate) {
+    const p = $("#xpPill");
+    p.classList.add("bump");
+    setTimeout(() => p.classList.remove("bump"), 250);
+  }
+}
+
+/* ---- cover ---- */
+function renderCover() {
+  const n = NICHES[nicheKey];
+  $("#brandName").textContent = STUDIO.short;
+  $("#whoAv").textContent = STUDIO.short[0];
+  $("#covTitle").textContent = n.title;
+  $("#covSub").textContent = "It's " + n.framing;
+
+  const q = n.round1.items.length + n.round2.items.length;
+  $("#metaRow").innerHTML = `
+    <div class="meta-item"><span class="m-val">2</span><span class="m-lbl">rounds</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><span class="m-val">${q}</span><span class="m-lbl">questions</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><span class="m-val">~${minutes(n)}m</span><span class="m-lbl">to finish</span></div>`;
+
+  $("#whoName").textContent    = STUDIO.name;
+  $("#whoContact").textContent = STUDIO.contact.split(" · ")[0];
+  $("#whoNote").textContent    = STUDIO.status;
+
+  const sub = { founder:"Strategy & GTM", executive:"Leadership", manager:"Operations", individual_contributor:"Day-to-day work", technical:"Systems & code", hr_learning:"People & learning", operations:"Workflow", intern:"Company basics", independent:"Practice & clients" };
+  $("#nicheGrid").innerHTML = Object.entries(NICHES).map(([k, v]) =>
+    `<button class="niche-card" data-niche="${k}" aria-pressed="${k === nicheKey}">
+       <span class="icon">${NICHE_ICONS[k]}</span>
+       <span class="nc-label">${v.label}</span>
+       <span class="nc-sub">${sub[k] || ""}</span>
+     </button>`).join("");
+}
+
+/* ---- render step ---- */
+function renderStep() {
+  const st = steps[at]; bar();
+  const n = NICHES[nicheKey];
+  const inRound = st.round || (at > steps.findIndex(s => s.round === 2) ? 2 : 1);
+  $("#roundBadge").hidden = false; $("#xpPill").hidden = false;
+  $("#roundBadge").textContent = "Round " + inRound;
+
+  if (st.kind === "level") {
+    const r = n["round" + st.round], isFirst = st.round === 1;
+    const icon = $("#chIcon");
+    icon.className = "ch-icon " + (isFirst ? "r1" : "r2");
+    $("#chIconInner").textContent = isFirst ? "①" : "②";
+    $("#chEyebrow").textContent   = isFirst ? "Round 1 · Starting now" : "Round 1 complete · Round 2";
+    $("#chTitle").textContent     = cleanName(r.name);
+    $("#chText").textContent      = r.intro;
+    const earn = $("#xpEarn");
+    if (isFirst) { earn.hidden = true; }
+    else { earn.hidden = false; $("#xpEarnTxt").textContent = "+" + XP_ROUND + " pts — Round 1 done"; }
+    $("#lvGo").textContent = isFirst ? "Start Round 1" : "Start Round 2";
+    show("s-level");
+
+  } else if (st.kind === "q") {
+    $("#qNum").textContent   = "Q" + String(st.idx + 1).padStart(2, "0");
+    $("#qTag").textContent   = roundLabel(nicheKey, st.round) + " · " + (st.idx + 1) + " of " + st.count;
+    $("#qPrompt").textContent = st.prompt;
+    $("#qBody").innerHTML = `<textarea class="answer" id="ans" rows="1" placeholder="Type your answer…" spellcheck="false"></textarea>`;
+    const a = $("#ans"); a.value = answers[st.field] || ""; auto(a);
+    a.addEventListener("input",   () => auto(a));
+    a.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); next(); } });
+    $("#qBack").style.visibility = at > 1 ? "visible" : "hidden";
+    $("#roundBadge").textContent = "Round " + st.round;
+    show("s-q");
+    setTimeout(() => a.focus(), 70);
+
+  } else if (st.kind === "signin") {
+    $("#siTitle").textContent = SIGNIN.title;
+    $("#siP1").textContent    = SIGNIN.p1;
+    $("#siP2").textContent    = SIGNIN.p2;
+    $("#siNote").textContent  = SIGNIN.note;
+    show("s-signin");
+
+  } else if (st.kind === "done") {
+    renderDone(); show("s-done");
+  }
+}
+
+function cleanName(s) {
+  return s.replace(/^(Round|Part|Level)\s*\d+\s*[—\-]\s*/i, "").replace(/\s*\(about.*\)/i, "");
+}
+function auto(t) { t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }
+
+/* ---- done ---- */
+function renderDone() {
+  const n = NICHES[nicheKey];
+  const answered = Object.keys(answers).filter(k => answers[k] && answers[k].trim()).length;
+  const total    = n.round1.items.length + n.round2.items.length;
+  $("#doneMsg").textContent = "Nice work — both rounds done. If you left an email, your two-round summary is on its way. There's no ranking, and nothing here gets published.";
+  $("#scoreRow").innerHTML = `
+    <div class="score-card xp-card"><div class="sc-n tnum">${xp}</div><div class="sc-l">points earned</div></div>
+    <div class="score-card"><div class="sc-n tnum">${answered}/${total}</div><div class="sc-l">answered</div></div>
+    <div class="score-card"><div class="sc-n">2/2</div><div class="sc-l">rounds cleared</div></div>`;
+}
+
+/* ---- nav ---- */
+function save() { const st = steps[at]; if (st && st.kind === "q") { answers[st.field] = $("#ans").value; } }
+function next() {
+  const st = steps[at];
+  if (st.kind === "q") {
+    const val = $("#ans").value, firstTime = answers[st.field] === undefined;
+    answers[st.field] = val;
+    if (firstTime && val.trim()) { setXP(xp + XP_Q, true); }
+    const nextSt = steps[at + 1];
+    if (nextSt && nextSt.kind !== "q") { setXP(xp + XP_ROUND, true); }
+  }
+  at = Math.min(steps.length - 1, at + 1);
+  renderStep();
+}
+function back() { save(); at = Math.max(0, at - 1); renderStep(); }
+
+/* ---- events ---- */
+document.addEventListener("click", e => {
+  const c = e.target.closest(".niche-card");
+  if (c) { nicheKey = c.dataset.niche; renderCover(); }
+});
+$("#begin").addEventListener("click",  () => { steps = buildSteps(nicheKey); at = 0; answers = {}; setXP(0, false); renderStep(); });
+$("#lvGo").addEventListener("click",   () => { at = Math.min(steps.length - 1, at + 1); renderStep(); });
+$("#qOk").addEventListener("click",    next);
+$("#qBack").addEventListener("click",  back);
+$("#qSkip").addEventListener("click",  () => { const st = steps[at]; if (answers[st.field] === undefined) answers[st.field] = ""; at = Math.min(steps.length - 1, at + 1); renderStep(); });
+$("#siForm").addEventListener("submit", e => { e.preventDefault(); at = steps.length - 1; renderStep(); });
+$("#siSkip").addEventListener("click",  () => { at = steps.length - 1; renderStep(); });
+$("#again").addEventListener("click",   () => { $("#roundBadge").hidden = true; $("#xpPill").hidden = true; $("#bar").style.width = "0%"; renderCover(); show("s-cover"); });
+
+/* ---- init ---- */
+$("#disclaimer").textContent = DISCLAIMER;
+renderCover();
+</script>
+</body>
+</html>
