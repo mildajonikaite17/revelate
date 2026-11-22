@@ -383,26 +383,25 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     if category == "founder" and variant == "assessment":
         spec = {k: v for k, v in spec.items() if k != "event"}
         spec = {**spec, "assessment": True,
-                "title": "Founder Security-GTM Benchmark",
-                "framing": ("a short, private self-benchmark you run on your own in a few minutes: a handful of "
-                            "quick opinion questions about where security-awareness go-to-market is heading, and a "
-                            "tailored read-out of where your thinking sits versus the field. It asks for your views, "
-                            "not anything about your own company, customers or numbers - and it's just you, there's "
-                            "no group."),
+                "title": "Social-Engineering Defence Benchmark",
+                "framing": ("a short, private read on where social-engineering defence - deepfake and vishing "
+                            "simulation, and how people actually report attacks - is heading. You give your view of "
+                            "your own field (not anything about your company or customers) and get a tailored read-out "
+                            "of where your thinking sits versus the field. Just you, no group."),
                 "objective": (objective or "action"),
                 "resource_filename": "Founder_SecurityGTM_Benchmark.docx"}
         spec["round1"] = {**CATEGORY_SPECS["founder"]["round1"],
                           "name": "Part 1 - Quick warm-up (about 2 minutes)",
                           "intro": "A couple of quick reasoning prompts to calibrate the benchmark - no trick answers."}
         spec["round2"] = {
-            "name": "Part 2 - Your take on the field (about 3 minutes)",
-            "intro": "Your opinions on where the market is going - no company data, just your view. You get a read-out of how your take compares.",
+            "name": "Part 2 - Your read on social-engineering defence (about 3 minutes)",
+            "intro": "Your view of your own field - deepfake/vishing simulation and how people report attacks. No company data, just your take. You get a read-out of where it sits versus the field.",
             "items": [
-                ("q_metric", "What's the most over-rated metric in security-awareness training today, and what should replace it?"),
-                ("q_trend", "Where is security-awareness go-to-market heading over the next two years?"),
-                ("q_motion", "Founder-led versus rep-led GTM: at what point does founder-led selling stop scaling?"),
-                ("q_deepfake", "What's the one thing most companies still get wrong about deepfake and vishing readiness?"),
-                ("q_buyer", "If you could change one buyer behaviour in this market, what would it be and why?"),
+                ("q_report", "Beyond click-rates, what actually predicts whether people report a real attack fast?"),
+                ("q_deepfake", "Where do today's deepfake and vishing simulations fall short, and what would close the gap?"),
+                ("q_measure", "How should a buyer measure readiness against social engineering, not just training completion?"),
+                ("q_sim", "After email phishing, what's the next frontier for simulation-based awareness?"),
+                ("q_overrated", "What's the single most over-rated metric in awareness training today?"),
             ]}
     settings = settings or {}
     base = "https://" + domain
@@ -580,10 +579,10 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     elif spec.get("assessment"):
         dossier["who_is_behind"] = northbridge_about + " " + host_bio
         dossier["how_selected"] = ("No mutual introduction and no referral - I reached out because of your public "
-            "writing and talks on security-awareness go-to-market. It is curated outreach, nothing more.")
-        dossier["round2_content"] = ("Part 2 is a handful of quick opinion questions about where the market is "
-            "heading - your views only, nothing about your company, customers or numbers: "
-            + "; ".join(prompt for _, prompt in spec["round2"]["items"]))
+            "work on deepfake/vishing simulation and social-engineering defence. It is curated outreach, nothing more.")
+        dossier["round2_content"] = ("Part 2 is a handful of quick opinion questions about your own field - "
+            "deepfake/vishing simulation and how people report attacks - your views only, nothing about your "
+            "company, customers or numbers: " + "; ".join(prompt for _, prompt in spec["round2"]["items"]))
         dossier["answer_if_asked_for_names"] = ("It is a private, solo benchmark - there is no group and no attendee "
             "list, so there are no names to share. The host is me, " + contact_name + ", and the page is real; your "
             "answers stay with you.")
