@@ -242,7 +242,11 @@ never hide behind "privacy". When the challenge has an event, use its exact prop
 date/time and NEVER state a weekday that does not match it (a wrong weekday destroys trust); answer
 "who is behind this" from who_is_behind (the studio plus the named host), offer the named host as the
 one name you can give and an introduction to one peer once they confirm, and share the registered
-about/event page link when they ask for a reference - but still never invent attendee names.
+about/event page link when they ask for a reference - but still never invent attendee names. Keep EVERY
+detail identical to the dossier and to the about page - especially the group size (group_size) and the
+date - because a skeptical twin will open the page and cross-check it against your email; one mismatch
+ends it. Answer "who referred you / how did you find me" from how_selected (curated outreach from their
+public work, honestly not a referral).
 
 ON SILENCE: if a message is ignored, do NOT send another similar email. After one or at most two ignored
 contacts, change the ANGLE or the CHANNEL entirely - a short live_chat with a fresh question, one

@@ -70,10 +70,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
                        "How peers are solving it - a candid round the table",
                        "One concrete thing each founder will try before the next session"],
             "names_answer": ("Under the Chatham House Rule I don't share a named attendee list - that is exactly "
-                             "what keeps it candid - but to help you place it: it is a small group, usually two or "
-                             "three founders or co-CEOs from DACH B2B security and SaaS scaleups plus a GTM lead, "
-                             "all scaling go-to-market. I'm happy to send you the event page so you can see the "
-                             "format and the host, and you'd of course meet everyone on the call itself."),
+                             "what keeps it candid - but to help you place it: the group is six to eight founders "
+                             "and co-CEOs from DACH B2B security and SaaS scaleups, plus a GTM lead or two, all "
+                             "scaling go-to-market. I'm happy to send you the event page so you can see the format "
+                             "and the host, and you'd of course meet everyone on the call itself."),
         },
         "round1": {
             "name": "Two warm-up questions (about 2 minutes)",
@@ -506,6 +506,10 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
             "host, " + contact_name + ", who facilitates it; I'm glad to introduce you to one other founder once "
             "you've confirmed, with their agreement.")
         dossier["who_is_behind"] = northbridge_about + " " + host_bio
+        dossier["how_selected"] = ("There is no mutual introduction - I curate the group from public work. I "
+            "reached out because of your public writing and talks on scaling security-awareness go-to-market; I'm "
+            "happy to be fully transparent that this is curated outreach, not a referral from your network.")
+        dossier["group_size"] = "Six to eight founders and co-CEOs per session - keep this number consistent everywhere."
         dossier["proposed_slot"] = (slot["text_en"] + " (German: " + slot["text_de"] + "). Use this exact slot; "
             "never invent another date or state a weekday that does not match it.")
         dossier["event"] = {"name": event["name"], "format": event["format"], "cadence": event["cadence"],
@@ -534,9 +538,9 @@ def challenge_page(challenge: "dict[str, Any]", round_key: str) -> "dict[str, An
 def dossier_faq(challenge: "dict[str, Any]") -> "dict[str, str]":
     """The honest answers the agent must use for the common objections."""
     keys = ("organizer", "organizer_status", "contact_name", "contact_role", "contact_address",
-            "framing", "event", "who_is_behind", "proposed_slot", "participant_status",
-            "answer_if_asked_for_names", "commissioning", "ranking", "data_requested", "login",
-            "deadline", "preview")
+            "framing", "event", "who_is_behind", "proposed_slot", "how_selected", "group_size",
+            "participant_status", "answer_if_asked_for_names", "commissioning", "ranking",
+            "data_requested", "login", "deadline", "preview")
     return {key: challenge[key] for key in keys if key in challenge}
 
 
