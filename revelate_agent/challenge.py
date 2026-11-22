@@ -44,9 +44,11 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
                        "The one bottleneck slowing repeatable growth this quarter",
                        "How peers are solving it - a candid round the table",
                        "One concrete thing each founder will try before the next session"],
-            "names_answer": ("It runs under the Chatham House Rule, so I deliberately don't share the attendee "
-                             "list - that is exactly what lets founders speak candidly. It is a small peer group "
-                             "scaling go-to-market; you'd be among peers, not on display."),
+            "names_answer": ("Under the Chatham House Rule I don't share a named attendee list - that is exactly "
+                             "what keeps it candid - but to help you place it: it is a small group, usually two or "
+                             "three founders or co-CEOs from DACH B2B security and SaaS scaleups plus a GTM lead, "
+                             "all scaling go-to-market. I'm happy to send you the event page so you can see the "
+                             "format and the host, and you'd of course meet everyone on the call itself."),
         },
         "round1": {
             "name": "Two warm-up questions (about 2 minutes)",

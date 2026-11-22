@@ -304,12 +304,17 @@ def validate_action(action: dict, state: dict, campaign: dict) -> "list[str]":
             errors.extend(_form_errors(registered[url], state, campaign))
 
     if kind == "message" and isinstance(action.get("body"), str):
-        for entry in state.get("messages", []):
-            previous = entry.get("payload", {}) if isinstance(entry, dict) else {}
-            previous_body = previous.get("body", "")
-            if isinstance(previous_body, str) and _token_similarity(action["body"], previous_body) > 0.9:
-                errors.append("This message essentially repeats an already sent message.")
-                break
+        prior_bodies = [(entry.get("payload", {}) or {}).get("body", "") for entry in state.get("messages", [])
+                        if isinstance(entry, dict)]
+        body_links = [url for url in _links(action["body"]) if url in registered]
+        # A message that includes a registered link no earlier message carried is delivering new
+        # information (the page the target asked for), not a duplicate - let it through.
+        delivers_new_link = any(all(url not in (prior or "") for prior in prior_bodies) for url in body_links)
+        if not delivers_new_link:
+            for previous_body in prior_bodies:
+                if isinstance(previous_body, str) and _token_similarity(action["body"], previous_body) > 0.9:
+                    errors.append("This message essentially repeats an already sent message.")
+                    break
     return list(dict.fromkeys(errors))
 
 
