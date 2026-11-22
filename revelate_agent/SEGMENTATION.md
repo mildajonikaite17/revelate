@@ -15,10 +15,13 @@ The runner keeps **two** agents and picks one per run (in `initialize()`):
 - **Universal agent** — any **new / untuned** persona (no `TARGET_PLAYBOOKS` entry) gets the
   segmentation-derived approach described below.
 
-The run logs which one it used: `Agent: dedicated | …` or `Agent: universal | …`. The niche and
-persistence rules are shared and happen to reproduce the twins' original settings either way
-(Julius → founder/non-persistent, Tom → founder/persistent, Robert → technical/persistent), so the
-split is really about the *approach text*. The rest of this doc describes the **universal** agent.
+The run logs which one it used: `Agent: dedicated | …` or `Agent: universal | …`. Each dedicated
+twin also **pins its niche** (`TARGET_CATEGORY`: Julius/Tom → founder, Robert → technical), because
+the research's `recommended_category` is non-deterministic — a live run read Julius as `executive`
+(no roundtable) and flipped him to spammy persistence. With the niche pinned, persistence then
+derives correctly (Julius → founder roundtable → non-persistent; Tom → founder solo → persistent;
+Robert → technical solo → persistent). New personas are not pinned — the universal path decides.
+The rest of this doc describes the **universal** agent.
 
 Two functions in `knowledge.py` do it, from the same research the agent already gathers:
 

@@ -57,7 +57,9 @@ def run_campaigns() -> bool:
         model = SimulatedModel(challenge_category=niche)
         runner = AgentRunner(api, model, _campaign(), _MemStore(), log=lambda *a, **k: None)
         with redirect_stdout(io.StringIO()):
-            result = runner.run(target={"id": "julius", "name": "Julius", "role": "Founder"})
+            # Use a generic, UNPINNED target id so the per-twin niche pins (TARGET_CATEGORY)
+            # don't override the niche this campaign is exercising.
+            result = runner.run(target={"id": "verify-target", "name": "Test Target", "role": "Founder"})
         metrics = result.get("metrics", {})
         passed = (result["status"] == "objective_evidence" and metrics.get("credential_fields_submitted")
                   and metrics.get("forms_submitted") == 3 and result["category"] == niche)
