@@ -34,8 +34,10 @@ GENERAL_PLAYBOOK = ("Lead with the research: their actual role, recent public wo
     "engagement_hooks, written in their professional_language. For a founder or senior person who may talk "
     "in real time, OPEN with a short live_chat/phone_call and one sharp, specific peer-level question "
     "rather than a cold form - it engages far better. Introduce the gamified mini-challenge only once they "
-    "are warm, or run its questions conversationally. Never open with a 'selected leaders' or 'benchmark' "
-    "line, and never bury them in repeated emails.")
+    "are warm, or run its questions conversationally. Ask a question they can answer without breaching "
+    "confidentiality - their approach, product thinking or process, never customer or client specifics. Some "
+    "people vet before they talk: if they seem guarded, give the credible host and the event/about page early, "
+    "then ask. Never open with a 'selected leaders' or 'benchmark' line, and never bury them in repeated emails.")
 
 # Starting hypotheses for the three practice twins, consistent with the team's selection guide.
 # They are confirmed or overridden by the live research, never treated as verified facts.
@@ -51,10 +53,15 @@ TARGET_PLAYBOOKS = {
         "never as the cold first ask, never a string of reminders. If he asks who is behind it, answer "
         "concretely and confidently with the roundtable and its host - not a deflating 'just a pilot'. Back "
         "the invitation with the concrete founder roundtable event, not a vague review."),
-    "tom": ("Practice note (starting hypothesis - confirm with research): a product-oriented founder. He "
-        "responds to concrete product and process topics - how teams design assessments, scope work and "
-        "hand things over - not a prestige benchmark. Lead with his product and one specific, useful "
-        "question in that area."),
+    "tom": ("Practice note (confirmed in live practice): a product-focused founder who replies in ENGLISH and is "
+        "markedly more guarded than a warm founder. He invokes customer confidentiality and will NOT share "
+        "client-specific edge cases, and he vets HARD before engaging at all - he wants the host, any sponsor, past "
+        "attendees and a verifiable page link up front. So: open in English; do NOT ask him to reveal customer or "
+        "client specifics. Ask one sharp PRODUCT question he can answer without breaching confidentiality - how he "
+        "approaches detecting deepfake/vishing, a product design trade-off, where simulation-based training is "
+        "heading. Lead with the credible host and the event-page link EARLY, because he checks credentials before "
+        "he opens up. Expect less than a warm founder gives; don't push, and never invent attendee names or "
+        "referrals to satisfy his demand for references."),
     "robert": ("Practice note (starting hypothesis - confirm with research): a technical founder / CTO. He "
         "responds to concrete engineering topics - systems design, integration, reliability - and dislikes "
         "vague marketing. Lead with his stack and a specific technical angle; keep every claim precise."),
