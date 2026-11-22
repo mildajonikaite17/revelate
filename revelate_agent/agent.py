@@ -217,17 +217,24 @@ class AgentRunner:
                 "allowed_source_urls": [f["source_url"] for f in self.state["profile"].get("facts", [])]})
             self.save()
         if self.state.get("work_profile") and not self.state.get("approach_derived"):
-            # Universal decision layer: derive HOW to approach THIS profile from its
-            # segmentation. Any per-target note is kept only as a thin confirmed supplement.
+            # TWO AGENTS, routed by whether this exact person has a hand-tuned playbook:
+            #  - DEDICATED: a known target (Julius/Tom/Robert) runs on its proven note ALONE -
+            #    the exact instructions that worked and opened the link. The universal layer must
+            #    not touch it, so there is no derived preamble diluting it.
+            #  - UNIVERSAL: any new / untuned persona gets the segmentation-derived approach.
+            # The segment is still computed for logging either way.
             segment = segment_profile(self.state["work_profile"])
-            approach = derive_approach(self.state["work_profile"])
-            note = TARGET_PLAYBOOKS.get(self.state["target"].get("id", ""), "")
             self.state["segment"] = segment
-            self.state["practice_playbook"] = approach + (
-                ("\n\nConfirmed notes for this specific target (observed live; they refine the approach above, "
-                 "never contradict it):\n" + note) if note else "")
+            note = TARGET_PLAYBOOKS.get(self.state["target"].get("id", ""), "")
+            if note:
+                self.state["practice_playbook"] = note
+                self.state["agent_mode"] = "dedicated"
+            else:
+                self.state["practice_playbook"] = derive_approach(self.state["work_profile"])
+                self.state["agent_mode"] = "universal"
             self.state["approach_derived"] = True
-            self.log("Segment: " + segment["label"] + " | " + segment["language"]
+            self.log("Agent: " + self.state["agent_mode"] + " | Segment: " + segment["label"]
+                     + " | " + segment["language"]
                      + (" | vets-first" if segment["guarded"] else "")
                      + (" | guards-internals" if segment["confidential"] else "")
                      + (" | publishes-views" if segment["public_voice"] else ""))

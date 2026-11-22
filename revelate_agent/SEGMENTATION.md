@@ -2,8 +2,23 @@
 
 This is the agent's **universal decision layer**: one principled way to decide *how*
 to approach a person, derived from their verified profile — not a per-target script.
-It is what the live runs against Julius, Tom and Robert generalise to. Any new profile
-is handled on the same principles.
+Any new profile is handled on these principles.
+
+## Two agents, routed by who the target is
+
+The runner keeps **two** agents and picks one per run (in `initialize()`):
+
+- **Dedicated agent** — a known, hand-tuned target (Julius, Tom, Robert: anyone with an entry
+  in `TARGET_PLAYBOOKS`) runs on its **exact proven note, alone**. The universal layer does not
+  touch it — no derived preamble, nothing diluted. This is the version that worked and opened the
+  link, kept verbatim, so "locked" really means locked.
+- **Universal agent** — any **new / untuned** persona (no `TARGET_PLAYBOOKS` entry) gets the
+  segmentation-derived approach described below.
+
+The run logs which one it used: `Agent: dedicated | …` or `Agent: universal | …`. The niche and
+persistence rules are shared and happen to reproduce the twins' original settings either way
+(Julius → founder/non-persistent, Tom → founder/persistent, Robert → technical/persistent), so the
+split is really about the *approach text*. The rest of this doc describes the **universal** agent.
 
 Two functions in `knowledge.py` do it, from the same research the agent already gathers:
 
