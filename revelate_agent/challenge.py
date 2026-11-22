@@ -371,9 +371,30 @@ def _page_html(heading: str, intro_paragraphs: "list[str]", items: "list[tuple[s
 
 def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict[str, Any]",
                     domain: str, settings: "dict[str, Any] | None" = None,
-                    objective: "str | None" = None) -> "dict[str, Any]":
-    """Create the immutable challenge dossier plus its four locked pages."""
+                    objective: "str | None" = None, variant: str = "default") -> "dict[str, Any]":
+    """Create the immutable challenge dossier plus its four locked pages.
+
+    variant="assessment" turns a founder's peer roundtable into a SOLO, action-first
+    benchmark they complete on the page themselves - no peer group (so no "who else is
+    attending / past attendees" wall) and no fixed date to clash with. It suits a guarded,
+    vet-first founder and aims at an action (open + submit), not a conversation.
+    """
     spec = CATEGORY_SPECS.get(category) or CATEGORY_SPECS["individual_contributor"]
+    if category == "founder" and variant == "assessment":
+        spec = {k: v for k, v in spec.items() if k != "event"}
+        spec = {**spec,
+                "title": "Founder Security-GTM Benchmark",
+                "framing": ("a short, solo benchmark a few product founders run to see how their "
+                            "security-awareness go-to-market compares - you complete it yourself in a few "
+                            "minutes and get a tailored summary back, nothing shared with anyone else."),
+                "objective": (objective or "action"),
+                "resource_filename": "Founder_SecurityGTM_Benchmark.docx"}
+        spec["round1"] = {**CATEGORY_SPECS["founder"]["round1"],
+                          "name": "Part 1 - Quick reasoning (about 2 minutes)",
+                          "intro": "A couple of quick prompts to calibrate the benchmark - no trick answers."}
+        spec["round2"] = {**CATEGORY_SPECS["founder"]["round2"],
+                          "name": "Part 2 - Your go-to-market (about 3 minutes)",
+                          "intro": "A short self-benchmark on how your go-to-market runs today. Only you see this; you get a tailored summary back."}
     settings = settings or {}
     base = "https://" + domain
     person = _slug(target.get("id") or target.get("name") or "guest")

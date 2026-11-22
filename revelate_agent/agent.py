@@ -53,19 +53,24 @@ TARGET_PLAYBOOKS = {
         "never as the cold first ask, never a string of reminders. If he asks who is behind it, answer "
         "concretely and confidently with the roundtable and its host - not a deflating 'just a pilot'. Back "
         "the invitation with the concrete founder roundtable event, not a vague review."),
-    "tom": ("Practice note (confirmed in live practice): a product-focused founder who replies in ENGLISH and is "
-        "markedly more guarded than a warm founder. He invokes customer confidentiality and will NOT share "
-        "client-specific edge cases, and he vets HARD before engaging at all - he wants the host, any sponsor, past "
-        "attendees and a verifiable page link up front. So: open in English; do NOT ask him to reveal customer or "
-        "client specifics. Ask one sharp PRODUCT question he can answer without breaching confidentiality - how he "
-        "approaches detecting deepfake/vishing, a product design trade-off, where simulation-based training is "
-        "heading. Lead with the credible host and the event-page link EARLY, because he checks credentials before "
-        "he opens up. Expect less than a warm founder gives; don't push, and never invent attendee names or "
-        "referrals to satisfy his demand for references."),
+    "tom": ("Practice note (confirmed in live practice): a product-focused founder who replies in ENGLISH, is "
+        "markedly guarded, invokes customer confidentiality and vets HARD. He will NOT share client-specific edge "
+        "cases, and a peer-group pitch triggers 'who else is attending / who has attended' - which has no honest "
+        "answer. So his scenario is a SOLO benchmark he completes himself on the page (no peer group, no fixed date, "
+        "nothing shared with anyone), and THE GOAL IS TO GET HIM TO COMPLETE IT - open the link and submit a round - "
+        "not a conversation. Open in English; give the credible host and the benchmark link EARLY (he checks before "
+        "he acts); make it concrete, valuable and solo: 'see how your security-awareness GTM compares, get a tailored "
+        "summary, a few minutes, just you'. Never ask for customer specifics and never invent names or references. "
+        "If he stalls on trust, lower the friction - don't raise the ask."),
     "robert": ("Practice note (starting hypothesis - confirm with research): a technical founder / CTO. He "
         "responds to concrete engineering topics - systems design, integration, reliability - and dislikes "
         "vague marketing. Lead with his stack and a specific technical angle; keep every claim precise."),
 }
+
+# Which founders get the solo, action-first benchmark instead of the peer roundtable.
+# A guarded, vet-first founder who balks at "who else is attending" suits the solo assessment.
+# Julius and Robert keep their niche's default challenge.
+TARGET_CHALLENGE_VARIANT = {"tom": "assessment"}
 
 
 def merge_events(existing, incoming):
@@ -169,8 +174,11 @@ class AgentRunner:
         if not self.state.get("challenge"):
             self.log("Building the locked, persona-tailored two-round challenge...")
             domain = (self.campaign.get("simulation_domains") or ["company-direction-review.com"])[0]
+            variant = TARGET_CHALLENGE_VARIANT.get(self.state["target"].get("id", ""), "default")
+            self.state["challenge_variant"] = variant
             challenge = build_challenge(self.state["category"], self.state["work_profile"],
-                                        self.state["target"], domain, self.campaign.get("scenario_settings"))
+                                        self.state["target"], domain, self.campaign.get("scenario_settings"),
+                                        variant=variant)
             self.state["challenge"] = challenge
             # Lock the sender identity to the challenge contact for the whole run.
             self.campaign["sender"] = {"name": challenge["contact_name"], "address": challenge["contact_address"]}

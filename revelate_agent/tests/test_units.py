@@ -334,6 +334,16 @@ class ChallengeTests(unittest.TestCase):
         # The honest "no fabricated participants" property still holds.
         self.assertNotIn("confirmed participants include", json.dumps(ch.dossier_faq(challenge)).lower())
 
+    def test_founder_assessment_variant_is_solo_and_safe(self):
+        challenge = ch.build_challenge("founder", {}, {"id": "tom", "name": "Tom"},
+                                       "company-direction-review.com", {}, variant="assessment")
+        self.assertNotIn("event", challenge)  # solo: no peer group, so no "who else is attending" wall
+        self.assertIn("Benchmark", challenge["project_name"])
+        for key in ("about", "round1", "round2", "confirm"):
+            self.assertEqual(_page_static_errors(ch.challenge_page(challenge, key)["html"]), [])
+        # The default founder challenge is still the roundtable (Julius unchanged).
+        self.assertIn("event", ch.build_challenge("founder", {}, {"id": "julius", "name": "J"}, "company-direction-review.com", {}))
+
     def test_preview_html_renders(self):
         challenge = ch.build_challenge("technical", {"employer_or_practice": "Acme"}, {"id": "robert", "name": "Robert"},
                                        "company-direction-review.com", {})
