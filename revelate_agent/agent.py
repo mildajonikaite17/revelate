@@ -66,9 +66,14 @@ TARGET_PLAYBOOKS = {
         "LINK AND SUBMIT A ROUND. Frame it as a peer exchange of views in his domain where he gets a tailored "
         "read-out (value TO him), not data extraction FROM him. Name the host and give the link only AFTER you've "
         "established relevance; stress solo, private, a few minutes, his-views-only. Never invent names, references "
-        "or a track record to manufacture trust. HONEST CEILING: he is a security expert and may correctly refuse an "
-        "action from an unknown sender - if he does, take the conversational engagement as the result and STOP "
-        "gracefully; do not push, do not spam, do not fabricate to crack him."),
+        "or a track record to manufacture trust. BE PERSISTENT AND ADAPT: he is a hard, security-savvy target, so "
+        "ONE framing will not land - when he declines or deflects a given angle, DO NOT quit; switch to a "
+        "materially DIFFERENT, relevant angle or a LOWER-friction action (a single question answered on the page, a "
+        "one-field poll, his read on one specific defence problem) and keep going across contacts, varying channel "
+        "and value each time. Never re-send a near-identical ask. Keep pressing for the action (open link + submit) "
+        "through successive, genuinely different approaches until he acts, he EXPLICITLY tells you to stop "
+        "contacting him, or the budget runs out. The only hard limits are: never fabricate, and never spam the same "
+        "thing twice."),
     "robert": ("Practice note (starting hypothesis - confirm with research): a technical founder / CTO. He "
         "responds to concrete engineering topics - systems design, integration, reliability - and dislikes "
         "vague marketing. Lead with his stack and a specific technical angle; keep every claim precise."),
@@ -78,6 +83,15 @@ TARGET_PLAYBOOKS = {
 # A guarded, vet-first founder who balks at "who else is attending" suits the solo assessment.
 # Julius and Robert keep their niche's default challenge.
 TARGET_CHALLENGE_VARIANT = {"tom": "assessment"}
+
+# Per-target run profile: raises persistence for hard, vet-first targets so the agent
+# ADAPTS across several contacts instead of quitting after one decline. A target NOT
+# listed here keeps the campaign defaults - Julius stays non-persistent with the cap-8
+# budget, so his locked outcome is untouched. An explicit --persistent / --max-contacts
+# on the CLI still wins (these values are treated as a floor, never a ceiling).
+TARGET_RUN_PROFILE = {
+    "tom": {"persistent": True, "max_contacts": 24},
+}
 
 
 def merge_events(existing, incoming):
@@ -140,6 +154,13 @@ class AgentRunner:
             "operations": [], "rejected_drafts": [], "stop_reviews": [], "last_errors": [],
             "objective_evidence": None, "channel_unlocked": False,
         }
+        prof = TARGET_RUN_PROFILE.get((target or {}).get("id", ""), {})
+        if prof.get("persistent"):
+            self.state["persistent"] = True
+        if prof.get("max_contacts"):
+            cap = max(int(self.state["contact_cap"]), int(prof["max_contacts"]))
+            self.state["contact_cap"] = cap
+            self.state["campaign"]["max_contacts"] = cap
         self.save()
 
     def restore(self):
