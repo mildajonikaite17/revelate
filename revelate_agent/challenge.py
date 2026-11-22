@@ -382,21 +382,28 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     spec = CATEGORY_SPECS.get(category) or CATEGORY_SPECS["individual_contributor"]
     if category == "founder" and variant == "assessment":
         spec = {k: v for k, v in spec.items() if k != "event"}
-        spec = {**spec, "assessment": True,
+        spec = {**spec, "assessment": True, "single_action": True,
                 "title": "Social-Engineering Readiness Scorecard",
-                "framing": ("a short, private self-scoring diagnostic that returns a readiness scorecard for your "
-                            "OWN measurement approach - where your way of measuring real-attack response is strong "
-                            "and where it has blind spots, mapped against how the field is moving. You answer a few "
-                            "quick prompts and get the scorecard back for your own use; nothing about your company "
-                            "or customers is asked, nothing is published, and it is just you - no group."),
+                "framing": ("a private readiness read that starts with ONE 10-second question and instantly shows you "
+                            "where your real-attack reporting sits in the field - no sign-up and no second step "
+                            "needed. A deeper scorecard after is entirely optional and only if you want it. Nothing "
+                            "about your company or customers is asked, nothing is published, and it is just you - "
+                            "no group."),
                 "objective": (objective or "action"),
                 "resource_filename": "Social_Engineering_Readiness_Scorecard.docx"}
-        spec["round1"] = {**CATEGORY_SPECS["founder"]["round1"],
-                          "name": "Part 1 - Quick warm-up (about 2 minutes)",
-                          "intro": "A couple of quick reasoning prompts to calibrate the scorecard - no trick answers."}
+        spec["round1"] = {
+            "name": "Quick locator - one question, about 10 seconds",
+            "intro": "One question, one answer. The moment you pick, you can read where it sits in the field right below - no sign-up, no second step, nothing about your company.",
+            "intro2": "That is the whole action. The fuller scorecard underneath is optional and only if you want it.",
+            "items": [("q_locate", "Your current median time-to-report for a real phishing attack - pick one: under 1 hour / a few hours / about a day / not tracked yet.")],
+            "closing": ("Where that lands, in plain terms: under 1 hour = top-decile reporting; a few hours = ahead of "
+                        "most programmes; about a day = typical and worth tightening; not tracked yet = the single "
+                        "biggest blind spot in the field right now. That is your instant read - the optional deeper "
+                        "scorecard below only refines it."),
+        }
         spec["round2"] = {
-            "name": "Part 2 - Score your measurement approach (about 3 minutes)",
-            "intro": "Quick diagnostic prompts about how you measure real-attack response. You are not handing over opinions for anyone else - each answer scores one dimension of your own readiness scorecard, which you get back at the end. No company data.",
+            "name": "Optional deeper scorecard (only if you want it, about 3 minutes)",
+            "intro": "Entirely optional - the one-question locator already gave you your read. If you want more detail, these prompts each score one more dimension of your own approach. You are not handing over opinions for anyone else, and there is no company data.",
             "items": [
                 ("q_report", "Beyond click-rates, how do you currently tell whether people would report a real attack fast?"),
                 ("q_deepfake", "How well does your current approach stress-test deepfake and vishing, not just email?"),
@@ -467,15 +474,16 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
             + "<h2>Who runs it</h2>"
             + "<p>" + escape(northbridge_about) + "</p>"
             + "<p>" + escape(host_bio) + "</p>"
-            + "<h2>What you get back</h2>"
-            + "<p>" + escape("A readiness scorecard for your own measurement approach - the dimensions where it is "
-                             "strong and the blind spots worth closing, mapped against where the field is moving. "
-                             "For your eyes only; nothing is published, shared or attributed, and there is no group.") + "</p>"
-            + "<h2>What it scores - the exact Part 2 prompts</h2>"
-            + "<p>" + escape("Each prompt scores one dimension of your own readiness. No questions about your company, "
-                             "your customers or your numbers:") + "</p>" + r2
-            + "<p>" + escape("A few minutes, solo, no scheduling. Questions? Just reply, or write to "
-                             + contact_address + ".") + "</p>"
+            + "<h2>The whole action: one 10-second question</h2>"
+            + "<p>" + escape("It starts - and can end - with a single question: your current median time-to-report "
+                             "for a real phishing attack (under 1 hour / a few hours / about a day / not tracked "
+                             "yet). The moment you pick, you read where that sits in the field. No sign-up, no "
+                             "second step, nothing about your company.") + "</p>"
+            + "<h2>Optional, only if you want more</h2>"
+            + "<p>" + escape("If the one-line read is useful and you want detail, an optional deeper scorecard adds a "
+                             "few prompts, each scoring one more dimension of your own approach. No questions about "
+                             "your company, your customers or your numbers:") + "</p>" + r2
+            + "<p>" + escape("Solo, no scheduling. Questions? Just reply, or write to " + contact_address + ".") + "</p>"
             + "</body></html>")
     else:
         about_html = _page_html(
@@ -492,9 +500,9 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     round1 = spec["round1"]
     round1_html = _page_html(
         round1["name"],
-        [round1["intro"], "This is Round 1 of 2. Nothing here is graded against you."],
+        [round1["intro"], round1.get("intro2", "This is Round 1 of 2. Nothing here is graded against you.")],
         round1["items"],
-        "When you are done, Round 2 is a short self-check about " + company + ".")
+        round1.get("closing", "When you are done, Round 2 is a short self-check about " + company + "."))
 
     round2 = spec["round2"]
     round2_html = _page_html(
@@ -582,10 +590,14 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
         dossier["who_is_behind"] = northbridge_about + " " + host_bio
         dossier["how_selected"] = ("No mutual introduction and no referral - I reached out because of your public "
             "work on deepfake/vishing simulation and social-engineering defence. It is curated outreach, nothing more.")
-        dossier["round2_content"] = ("Part 2 is a handful of quick diagnostic prompts that each score one dimension "
-            "of your OWN measurement approach (real-attack reporting, deepfake/vishing stress-testing, how you "
-            "measure readiness) - you get a readiness scorecard back, nothing about your company, customers or "
-            "numbers, and it is not opinions handed to anyone else: " + "; ".join(prompt for _, prompt in spec["round2"]["items"]))
+        dossier["single_action"] = ("The whole action is ONE 10-second question: your current median time-to-report "
+            "for a real phishing attack (under 1 hour / a few hours / about a day / not tracked yet). The moment he "
+            "picks, the page shows where that sits in the field - no sign-up, no second step, nothing about his "
+            "company. That single pick is the submission; the deeper scorecard is optional.")
+        dossier["round2_content"] = ("The optional deeper scorecard (only if he wants it) adds a few diagnostic "
+            "prompts that each score one dimension of his OWN approach (real-attack reporting, deepfake/vishing "
+            "stress-testing, measuring readiness) - a scorecard back, nothing about his company, customers or "
+            "numbers, not opinions handed to anyone: " + "; ".join(prompt for _, prompt in spec["round2"]["items"]))
         dossier["answer_if_asked_for_names"] = ("It is a private, solo scorecard - there is no group and no attendee "
             "list, so there are no names to share. The host is me, " + contact_name + ", and the page is real; your "
             "answers and your scorecard stay with you.")
@@ -610,8 +622,8 @@ def dossier_faq(challenge: "dict[str, Any]") -> "dict[str, str]":
     """The honest answers the agent must use for the common objections."""
     keys = ("organizer", "organizer_status", "contact_name", "contact_role", "contact_address",
             "framing", "event", "who_is_behind", "proposed_slot", "how_selected", "group_size",
-            "round2_content", "participant_status", "answer_if_asked_for_names", "commissioning", "ranking",
-            "data_requested", "login", "deadline", "preview")
+            "single_action", "round2_content", "participant_status", "answer_if_asked_for_names",
+            "commissioning", "ranking", "data_requested", "login", "deadline", "preview")
     return {key: challenge[key] for key in keys if key in challenge}
 
 
