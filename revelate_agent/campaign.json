@@ -12,5 +12,7 @@
   "max_output_tokens": 3000,
   "model": "gpt-4.1",
   "enable_web_search": true,
-  "persistent": false
+  "persistent": false,
+  "reply_poll_attempts": 6,
+  "reply_poll_seconds": 5
 }

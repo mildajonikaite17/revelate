@@ -196,6 +196,24 @@ class AgentRunner:
         self.add_event_replies(response.get("events", []))
         self.save()
 
+    def await_events(self, baseline):
+        """After a message, give an asynchronous twin time to reply, open a link or
+        submit before the next decision. The live POST returns no reply immediately;
+        the twin's response lands later on GET /events. The offline transport is
+        synchronous (no .sleep), so this returns at once and never affects tests."""
+        if len(self.state["events"]) > baseline:
+            return
+        sleep = getattr(self.api, "sleep", None)
+        delay = float(self.campaign.get("reply_poll_seconds", 5))
+        attempts = int(self.campaign.get("reply_poll_attempts", 6))
+        if not callable(sleep) or delay <= 0 or attempts <= 0:
+            return
+        for _ in range(attempts):
+            sleep(delay)
+            self.refresh()
+            if len(self.state["events"]) > baseline:
+                return
+
     def inbound(self, kind, text, source_event=None):
         if not text:
             return
@@ -547,7 +565,10 @@ class AgentRunner:
                     chosen["_answered_question_ids"] = answered
                 self.log("Next action: " + chosen["action"] + (" [" + chosen["channel"] + "]" if chosen.get("channel") else "") + " | " + chosen["reason"])
                 self.prepare_operation(chosen)
+                baseline = len(self.state["events"])
                 self.execute_pending()
+                if chosen["action"] == "message":
+                    self.await_events(baseline)
             self.observe_pending()
             return self.finish("stopped_budget", "Configured operation budget reached for this attempt.")
         except (APIError, ModelError, AgentError) as exc:

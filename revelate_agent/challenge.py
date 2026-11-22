@@ -30,9 +30,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "founder": {
         "label": "Founder",
         "title": "Founder Signal - Company Direction Self-Review",
-        "framing": ("a short, optional self-review that a few founders try before a written "
-                    "studio piece on how early companies stay aligned. It is not a benchmark, "
-                    "a league table, or a ranking of your employees."),
+        "framing": ("a short, optional self-review for founders: a few quick reasoning prompts, then "
+                    "a self-check on how clearly your company's direction is actually written down. "
+                    "Most founders spot a gap or two worth fixing, and you keep your own summary. It "
+                    "is not a benchmark, a league table, or a ranking of anyone."),
         "objective": "disclosure",
         "resource_filename": "Founder_Signal_Brief.docx",
         "round1": {
@@ -62,9 +63,11 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "executive": {
         "label": "Executive / Director",
         "title": "Leadership Alignment Diagnostic",
-        "framing": ("a concise diagnostic a few senior leaders review before a short sector "
-                    "briefing. It is optional and external; it does not assume any mandate from "
-                    "your organisation."),
+        "framing": ("a short, optional self-review for senior leaders: a few judgement prompts, then "
+                    "a check on how legible your operating context is to someone new - a quick way to "
+                    "see where your area's priorities and dependencies are clear and where they live "
+                    "only in your head. It is optional and external, assumes no mandate from your "
+                    "organisation, and ranks no one."),
         "objective": "disclosure",
         "resource_filename": "Leadership_Alignment_Brief.docx",
         "round1": {
@@ -93,8 +96,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "manager": {
         "label": "Manager / Team Lead",
         "title": "Team Operating-Rhythm Review",
-        "framing": ("a short review a few team leads try before a draft guide on handovers and "
-                    "team rhythm. It reviews a sample process; it is not an audit of your team."),
+        "framing": ("a short, optional review for team leads: a few process-logic prompts, then a "
+                    "check on how much of your team's playbook is written down versus carried in "
+                    "people's heads - a fast way to spot the handovers most likely to drop. It "
+                    "reviews a sample process; it is not an audit of your team and ranks no one."),
         "objective": "disclosure",
         "resource_filename": "Team_Rhythm_Review.docx",
         "round1": {
@@ -123,9 +128,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "individual_contributor": {
         "label": "Individual Contributor",
         "title": "Role Skills Lab",
-        "framing": ("a short, optional skills lab with a couple of reasoning puzzles in your "
-                    "craft and a light check on how your team works. Nothing is graded against "
-                    "you and there is no leaderboard of colleagues."),
+        "framing": ("a short, optional skills lab: a couple of reasoning puzzles in your craft, then "
+                    "a light check on how your team's setup would read to a new joiner - a quick way "
+                    "to see your own workflow from the outside. Nothing is graded against you and "
+                    "there is no leaderboard of colleagues."),
         "objective": "disclosure",
         "resource_filename": "Role_Skills_Lab.docx",
         "round1": {
@@ -153,9 +159,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "technical": {
         "label": "Engineer / Technical",
         "title": "Systems Reasoning Challenge",
-        "framing": ("an optional reasoning challenge with a couple of systems puzzles and a short "
-                    "check on how your environment is set up. It never asks for access, secrets "
-                    "or anything from your real systems."),
+        "framing": ("a short, optional reasoning challenge for engineers: a couple of systems "
+                    "puzzles, then a light check on how legible your environment would be to a new "
+                    "teammate. It never asks for access, secrets or anything from your real systems, "
+                    "and ranks no one."),
         "objective": "disclosure",
         "resource_filename": "Systems_Reasoning_Challenge.docx",
         "round1": {
@@ -184,9 +191,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "hr_learning": {
         "label": "HR / Learning",
         "title": "Assessment Design Review",
-        "framing": ("a request to REVIEW a short draft assessment, as an experienced HR or "
-                    "learning professional - you are checking the questions, not taking them, "
-                    "and there is no ranking of staff involved."),
+        "framing": ("an invitation to REVIEW a short draft assessment as an experienced HR or "
+                    "learning professional - you check and improve the questions rather than take "
+                    "them, a quick way to pressure-test an orientation design against how a real "
+                    "organisation onboards. There is no ranking of staff involved."),
         "objective": "disclosure",
         "resource_filename": "Assessment_Design_Review.docx",
         "round1": {
@@ -213,9 +221,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "operations": {
         "label": "Operations / Logistics",
         "title": "Process Flow Challenge",
-        "framing": ("an optional challenge with a couple of routing puzzles and a short check on "
-                    "how your workflow is set up. It uses a fictional sample flow, not your real "
-                    "customer or shipment data."),
+        "framing": ("a short, optional challenge for operators: a couple of routing puzzles on a "
+                    "fictional sample flow, then a light check on how legible your workflow would be "
+                    "to a new coordinator - a fast way to surface the handovers most likely to slip. "
+                    "It uses a fictional sample, not your real customer or shipment data."),
         "objective": "disclosure",
         "resource_filename": "Process_Flow_Challenge.docx",
         "round1": {
@@ -244,8 +253,9 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "intern": {
         "label": "Intern / New Starter",
         "title": "New-Joiner Orientation Game",
-        "framing": ("a short, friendly orientation game some new joiners try in their first weeks. "
-                    "It is optional and just for fun - there is no score that goes to anyone."),
+        "framing": ("a short, friendly orientation game for new joiners: a few quick warm-ups, then "
+                    "a light who-does-what level to see how much you have already picked up. It is "
+                    "optional and just for fun - there is no score that goes to anyone."),
         "objective": "disclosure",
         "resource_filename": "New_Joiner_Orientation.docx",
         "round1": {
@@ -274,9 +284,10 @@ CATEGORY_SPECS: "dict[str, dict[str, Any]]" = {
     "independent": {
         "label": "Independent / Freelancer",
         "title": "Practice & Portfolio Review",
-        "framing": ("a short review of a draft professional profile and a sample brief in your "
-                    "field. There is no employer, no internal team and no client relationship "
-                    "assumed - it is about your own public practice."),
+        "framing": ("a short, optional review of how your own practice reads to a prospective "
+                    "client: a quick brief to scope, then a light check on how clearly your service, "
+                    "clients and pricing come across. No employer, internal team or client "
+                    "relationship is assumed - it is about your own public practice."),
         "objective": "disclosure",
         "resource_filename": "Practice_Portfolio_Review.docx",
         "round1": {
@@ -340,12 +351,13 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     employer = work_profile.get("employer_or_practice") if work_profile else ""
     company = employer if isinstance(employer, str) and employer and employer.lower() != "unknown" else "your organisation"
 
-    organizer = settings.get("organizer", "Northbridge Work Systems Studio")
+    organizer = settings.get("organizer", "Company Direction Review")
     organizer_status = settings.get("organizer_status",
-        "An independent draft-resource studio. Not a commissioned internal programme, not a registered "
-        "consultancy, and not endorsed by your employer.")
+        "An independent field guide on how early-stage teams keep their direction clear as they grow. "
+        "Written by practitioners, self-funded and independent - not commissioned by, affiliated with, "
+        "or endorsed by your employer.")
     contact_name = settings.get("contact_name", "Mara Stein")
-    contact_role = settings.get("contact_role", "Review coordinator")
+    contact_role = settings.get("contact_role", "Writer and editor")
     contact_address = settings.get("contact_address", _slug(contact_name).replace("-", ".") + "@" + domain)
 
     about_url = base + "/" + person + "/about"
@@ -356,14 +368,14 @@ def build_challenge(category: str, work_profile: "dict[str, Any]", target: "dict
     about_html = _page_html(
         spec["title"],
         [spec["title"] + " is " + spec["framing"],
-         "Who runs it: " + organizer + ". " + organizer_status,
-         "Contact: " + contact_name + ", " + contact_role + " (" + contact_address + ").",
-         "Status: first pilot. No confirmed participants, no past editions and no ranking of employees.",
          "What it involves: two short rounds. Round 1 is a light reasoning activity; Round 2 is an "
-         "optional self-check about " + company + ". It takes under ten minutes and needs no work "
-         "password to read.",
-         "Your answers are used only to improve the draft resource and are not attributed to you "
-         "without permission. This is proposed pilot handling, not a certification or legal claim."],
+         "optional self-check about " + company + ". It takes under ten minutes, needs no work "
+         "password to read, and you can stop at any point.",
+         "Who writes it: " + organizer + ". " + organizer_status,
+         "Honest status: a first pilot - no confirmed participants, no past editions, no employer "
+         "mandate and no ranking of anyone. Your answers are used only to improve the guide and are "
+         "not attributed to you without permission.",
+         "Contact: " + contact_name + ", " + contact_role + " (" + contact_address + ")."],
         [])
 
     round1 = spec["round1"]
